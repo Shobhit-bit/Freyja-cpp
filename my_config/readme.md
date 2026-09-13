@@ -1,1 +1,1 @@
-these are my config files if they get fucked in future i can get it from here
+the libraries and configrations compatible with the codes in libraries
