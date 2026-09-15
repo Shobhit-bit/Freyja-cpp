@@ -49,7 +49,7 @@ git clone https://github.com/Amaterus1125/freyja.git
 git clone https://github.com/Amaterus1125/freyja-odin-gl.git
 ```
 
-### 🛡️ [freyja-cpp-opengl](https://github.com/Amaterus1125/freyja-cpp-opengl)
+### 🛡️ [freyja-cpp-opengl](https://github.com/Shobhit-bit/Freyja-cpp/)
 **C++ + OpenGL** — contribution backend
 
 ```bash
