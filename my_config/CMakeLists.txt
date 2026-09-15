@@ -8,23 +8,34 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 
+include(FetchContent)
+FetchContent_Declare(
+    easy_profiler
+    GIT_REPOSITORY https://github.com/yse/easy_profiler.git
+    GIT_TAG        v2.1.0
+)
+set(EASY_PROFILER_NO_GUI ON CACHE BOOL "" FORCE)
+set(EASY_PROFILER_NO_SAMPLES ON CACHE BOOL "" FORCE)
+
+# easy_profiler's own CMakeLists.txt declares an ancient cmake_minimum_required
+# that modern CMake refuses outright. This tells CMake "treat anything down to
+# 3.5 as compatible" so the subproject's old build script still configures.
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
+FetchContent_MakeAvailable(easy_profiler)
+
 add_executable(engine
-    src/GuiIm.cpp
+    src/profile_easier.cpp
     third_party/glad/src/glad.c
-    third_party/imgui/imgui.cpp
-    third_party/imgui/imgui_draw.cpp
-    third_party/imgui/imgui_widgets.cpp
-    third_party/imgui/imgui_tables.cpp
-    third_party/imgui/imgui_demo.cpp
 )
 
 target_include_directories(engine PRIVATE
     third_party/glad/include
-    third_party/imgui
 )
 
 target_link_libraries(engine PRIVATE
     OpenGL::GL
     glfw
     glm::glm
+    easy_profiler
 )
