@@ -87,6 +87,17 @@ int main() {
         vertices.insert(vertices.end(), {v.x, v.y, v.z, t.x, t.y, n.x, n.y, n.z});}
     for (unsigned i = 0; i < mesh->mNumFaces; i++)
         for (unsigned j = 0; j < 3; j++) indices.push_back(mesh->mFaces[i].mIndices[j]);
+    vec3 bmin(1e30f), bmax(-1e30f);
+    for (size_t i = 0; i < vertices.size(); i += 8) {
+        const vec3 q(vertices[i], vertices[i + 1], vertices[i + 2]);
+        bmin = glm::min(bmin, q);
+        bmax = glm::max(bmax, q);
+    }
+    const vec3 center = (bmin + bmax) * 0.5f;
+    const vec3 ext = bmax - bmin;
+    const float scale = 1.0f / glm::max(ext.x, glm::max(ext.y, ext.z));
+    for (size_t i = 0; i < vertices.size(); i += 8)
+        for (int k = 0; k < 3; k++) vertices[i + k] = (vertices[i + k] - center[k]) * scale;
     aiReleaseImport(scene);
 
     GLuint vbo, ibo, vao;
@@ -128,7 +139,7 @@ int main() {
         const mat4 p  = perspective(radians(45.0f), w / float(h), 0.1f, 1000.0f);
         const mat4 m1 = rotate(mat4(1.0f), radians(-90.0f), vec3(1, 0, 0));
         const mat4 m2 = rotate(mat4(1.0f), (float)glfwGetTime(), vec3(0, 1, 0));
-        const mat4 v  = translate(mat4(1.0f), vec3(0.0f, -0.5f, -1.5f));
+        const mat4 v  = translate(mat4(1.0f), vec3(0.0f, 0.0f, -2.0f));
         const mat4 model = v * m2 * m1;
         PerFrameData duck{model, p * model, vec4(0, 0, 0, 1)};
         glNamedBufferSubData(ubo, 0, sizeof(duck), &duck);
