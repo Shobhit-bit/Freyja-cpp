@@ -4,6 +4,7 @@
 #include <string>
 #include <alloca.h>
 #include <GL/glew.h> // or whatever GL loader you use
+#include <GLFW/glfw3.h>
 
 //shader file reading
 std::string readShaderFile(const char* filename){
@@ -121,6 +122,36 @@ void GLProgram::useProgram() const{
     glUseProgram(handle_);}
 
 int main(){
+    // --- create a windowed GL context before touching any GL* function ---
+    if(!glfwInit()){
+        printf("Failed to init GLFW\n");
+        return -1;
+    }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT,GLFW_TRUE);
+
+    GLFWwindow* window = glfwCreateWindow(1024,768,"Load Shader Demo",nullptr,nullptr);
+    if(!window){
+        printf("Failed to create GLFW window\n");
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+
+    glewExperimental = GL_TRUE; // needed for core profiles with some GLEW versions
+    const GLenum glewStatus = glewInit();
+    if(glewStatus != GLEW_OK){
+        printf("Failed to init GLEW: %s\n",glewGetErrorString(glewStatus));
+        glfwDestroyWindow(window);
+        glfwTerminate();
+        return -1;
+    }
+    // glewInit() can leave a spurious GL_INVALID_ENUM error on the stack; clear it
+    glGetError();
+
+    // --- now it's safe to compile/link shaders ---
     GLShader shaderVertex("data/shaders/GL02.vert");
     GLShader shaderGeometry("data/shaders/GL02.geom");
     GLShader shaderFragment("data/shaders/GL02.frag");
@@ -128,5 +159,7 @@ int main(){
     GLProgram program(shaderVertex,shaderGeometry,shaderFragment);
     program.useProgram();
 
+    glfwDestroyWindow(window);
+    glfwTerminate();
     return 0;
 }
