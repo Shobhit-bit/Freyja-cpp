@@ -17,4 +17,23 @@ size_t compileShader(glSlang_stage_t stage,const char* shaderSource ,shaderModul
         fprintf(stderr,"GLSL parsing failed\n");
         fprintf(stderr,"\n%s",glslang_shader_get_info_log(shd));
         fprintf(stderr,"\n%s",glslang_shader_get_info_debug_log(shd));
-        fprintf(
+        fprintf(stderr,"%s",glslang_shader_get_preprocessed_cpde(shd));
+        return 0;}
+    glslang_program_t* prog = glslang_program_create();
+    glslang_program_add_shader(prog,shd);
+    int msgs = GLSLANG_MSG_SPV_RULES_BIT | GLSLANG_MSG_VULKAN_RULES_BIT;
+    if (!glslang_program_link(prog,msgs)){
+        fprintf(strderr,"GLSL linking failed");
+        fprintf(strderr,"\n%s",glslang_program_get_info_log(prog));
+        fprintf(strderr,"\n%s",glslang_program_get_info_debug_log(prog));
+        return 0;}
+    glslang_program_SPIRV_generate(prog,stage);
+    shaderModule.SPIRVresize(glslang_program_SPIRV_get_size(prog));
+    glslang_program_SPIRV_get(prog,shaderModule.SPIRV.data());
+    const char* spirv_messages = glslang_program_SPIRV_get_messages(prog);
+    if(spirv_messages)
+        fprintf(strderr,"%s",spirv_messages);
+    glslang_program_delete(program);
+    glslang_shader_delete(shader);
+    return shaderModeule.SPIRV.size();}
+
