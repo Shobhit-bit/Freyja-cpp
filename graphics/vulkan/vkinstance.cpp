@@ -51,5 +51,45 @@ SwapchainSupportDetails querySwapChaininSupport(
     SwapchainSupportDetails details;
     vkGetPhysicalDeviceSurfaceCapablitiesKHR(device,surface,&details.capablities);
     uint32_t formatCount;
-    vkGetPhysical
-
+    vkGetPhysicalDeviceSurfaceFormatsKHR(device,surface,&formatCount,nullptr);
+    if(formatCount){details.formats.resize(formatCount);
+        vkGetPhysicalDeviceSurfaceFormatKHR(device,surface,&formatCount,details.formats.data());}
+    uint32_t presentModeCnt;
+    vkGetPhysicalDeviceSurfacePresentModesKHR(device,surface,&presentModeCnt,nullptr);
+    if(presentModeCnt){details.presentModes.resize(presentModeCnt);
+        vkGetPhysicalDeviceSurfacePresentModesKHR(device,surface,&presentModeCnt,details.presentModes.data());}
+    return details;}
+VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>&   availableFormats){
+    return{VK_FORMAT_B8G8R8A8_UNORM,VK_COLOR_SPACE_SRGB_    NONLINEAR_KHR};}
+VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>&     availablePresentModes){
+    for(const auto mode:availablePresentModes)
+        if (mode==VK_PRESENT_MODE_MAILBOX_KHR)  return mode;
+    return VK_PRESENT_MODE_FIFO_KHR;
+}
+uint32_t chooseSwapImageCount(const VkSurfaceCapabilitiesKHR& caps){
+    const uint32_t imageCount = caps.minImageCount+1;
+    const bool imageCountExceeded = caps.maxImageCount && imageCount > caps.maxImageCount;
+    return imageCountExceeded ? caps.maxImageCount : imageCount;}
+VkResult createSwapchain(VkDevice device,VkPhysicalDevice physicalDevice,VkSufaceKHRsurface, uint32_t graphicsFamily, uint32_t width,uint32_t height,VkSwapchainKHR* swapchain){
+    auto swapchainSupport = querySwapchainSupport(physicalDevice,surface);
+    auto surfaceFormat = chooseSwapSurfaceFormat(swapchainSupport.formats);
+    auto presentMode = chooseSwapPresentMode(swapchainSupport.presentModes);
+    const VkSwapchainCreateInfoKHR ci = {.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,.flags=0,.surface=surface,.minImageCount = chooseSwapImageCount(swapchainSupport.capablities),.imageFormat = surfaceFormat.format,.imageColorSpace=surfaceFormat.colorSpace,.imageExtent = {.width = width,.height=height},.imageArrayLayers=1,.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,.queueFamilyIndexCount =1,.pQueueFamilyIndicies=&graphicsFamily,.preTransform = swapchainSupport.capalities.currentTransform,.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,.presentMode=presentMode,.clipped=VK_TRUE,.oldSwapchain=VK_NULL_HANDLE};
+    return vkCreateSwapchainKHR(device,&ci,nullptr,swapchain);}
+size_t createSwapchainImages(VkDevice device,VkSwapchainKHR swawpchain,std::vector<VkImage>&swapchainImageViews){
+    uint32_t imageCount =0;
+    VK_ASSERT(vkGetSwapchainImagesKHR(device,swapchain,&imageCount,nullptr) == VK_SUCCESS);
+    swapchainImages.resize(imageCount);
+    VK_ASSERT(vkGetSwapchainImagesKHR(device,swapchain,&imageCount,swapchainImages.data()) == VK_SUCCESS);
+    for(unsigned i=0;i<imageCount;i++)
+        if(!createImageView(device,swapchainImages[i],VK_FORMAT_B8G8R8A8_UNORM,VK_IMAGE_ASPECT_COLOR_BIT,&swapchainImageViews[i]))
+            exit(EXIT_FAILURE);
+    return imageCount;}
+bool createImageView(VkDevice device,VkImage image,VkFormat format,VkImageAspectFlagsaspectFlags,VkImageView* imageView){
+    const VkImageViewCreateInfo viewInfo = {.sType=VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,.pNext = nullptr,.flags=0,.image=image,.viewType = VK_IMAGE_VIEW_CREATE_INFO,.pNext = nullptr,.flags=0,.image=image,.viewType = VK_IMAGE_VIEW_TYPE_2D,.format=format,.subresourceRange = { .aspectMask =aspectFlags,.baseMipLevel =0,.levelCount=1,.baseArrayLayer = 0,.layerCount=1}};
+    VK_CHECK(vkCreateImageView(device,&viewInfo,nullptr,imageView));
+    return true;
+}
+// debuging
+static VKAPI_ATTR VkBool32 VKAPI_CALL
+vulkanDebugCallback(VkDebugUtilsMessagesSeverityFlagBitsEXT Severity,VkDebugUtilsMessageTypeFlagsEXT Type,const 
