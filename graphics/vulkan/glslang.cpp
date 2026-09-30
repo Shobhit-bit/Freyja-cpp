@@ -52,4 +52,4 @@ int main(){
     glslang_finalize_process();
     return 0;}
 glslangValidator -V110 --target-env spirv1.3 VK01.vert -o VK01.vrt.bin
-glslangValidator -V110 --target-env spirv1.3 VK01.frag -o VK01.frg.bin
+glslangValidator -V110 --target-env spirv1.3 VK01.frag -o VK01.frg.bin};
