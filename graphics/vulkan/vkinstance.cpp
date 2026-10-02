@@ -162,3 +162,11 @@ void destroVulkanInstance(VulkanInstance& vk){
     vkDestroyDebugUtilsMessengerEXT(vk.instance,vk.messenger,nullptr);
     vkDestroyInstance(vk.instance,mullptr);}
 //command buffer
+bool fillCommandBuffers(size_t i){
+    const VkCommandBufferBEginInfo bi={.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,.pNext=nullptr,.flags=VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT,.pInheritanceInfo = nullptr};
+    const std::array<VkClearValue,2> clearValues = {VkClearValue{.color=clearValueColor},VkClearValue{.depthStencil={1.0f,0}}};
+    const VkRect2D screenRect = {.offset={0,0},.extent={.width=kScreenWidth,.height=kScreenHeight}};
+    VK_CHECK(vkBeginCommandBuffer(vkDev.commandBuffer[i],&bi));
+    const VkRenderePassBeginInfo renderPassInfo = {.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,.pNext = nullptr,.renderPass = vkState.renderPass,.frameBuffer=vkState.swapchainFramebuffers[i],.renderArea = screenRect,.clearValueCount = static_cast<uint32_t>(clearValues.size()),.pClearValues=clearValues.data()};
+    vkCmdBeginRenderPass(vkDev.commandBuffers[i],&renderPassInfo,VK_SUBPASS_CONTENTS_INLINE);
+    pg-225
