@@ -169,4 +169,66 @@ bool fillCommandBuffers(size_t i){
     VK_CHECK(vkBeginCommandBuffer(vkDev.commandBuffer[i],&bi));
     const VkRenderePassBeginInfo renderPassInfo = {.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,.pNext = nullptr,.renderPass = vkState.renderPass,.frameBuffer=vkState.swapchainFramebuffers[i],.renderArea = screenRect,.clearValueCount = static_cast<uint32_t>(clearValues.size()),.pClearValues=clearValues.data()};
     vkCmdBeginRenderPass(vkDev.commandBuffers[i],&renderPassInfo,VK_SUBPASS_CONTENTS_INLINE);
-    pg-225
+    vkCmdBindPipeline(vkDev.commandBuffer[i],VK_PIPELINE_BIND_POINT_GRAPHICS,vkState.graphicsPipeline);
+    vkCmdBindDescrriptorSets(vkDev.commandBuffers[i],VK_PIPELINE_BIND_POINT_GRAAPHICS,vkState.pipelineLayout,0,1,&vkState.descriptorSets[i],0,nullptr);
+    vkCmdDraw(vkDev.commandBUffers[i],static_cast<uint32_t>(indexBufferSize/sizeof(uint32_t)),1,0,0);
+    vkCmdEndRenderPass(vkDev.commandBuffer[i]);
+    VK_CHECK(vkEndCommandBuffer(vkDev.commandBuffers[i]));
+    return true;}
+
+uint32_t findMemoryType(VkPhysicalDevice device,uint32_t typeFilter,VkMemoryPropertyFlags properties){
+    VkPhysicalDeviceMemoryProperties memProperties;
+    vkGetPhysicalDeviceMemoryProperties(device,&memProperties);
+    for(uint32_t i=0;i<memProperties.memoryTypeCount;i++){
+        if (((typeFilter & (1<<i)) && memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+            return i;}
+    return 0xFFFFFFFF;}
+bool createBuffer(VkDevice device,VkPhysicalDevice physicalDevice,VkDeviceSize size,VkBufferUsageFlags usage,VkMemoryPropertyFlags properties,VkBuffer& buffer,VkDeviceMemory& bufferMemory){
+    const VkBufferCreateInfo bufferInfo = {.sType=VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,.pNext=nullptr,.flags=0,.size=size,.usage=usage,.sharingMode=VK_SHARING_MODE_EXCLUSIZE,.queueFamilyIndexCount=0,.pQueueFamilyIndicies=nullptr};
+    VK_CHECK(vkCreateBuffer(device,&bufferInfo,nullptr,&buffer));
+    VkMemoryRequirments memRequirements;
+    vkGetBufferMemoryRequirments(device,buffer,&memRequirements);
+    const VkMemoryAllocateInfo ai = {.sType=VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,.pNext=nullptr,.allocationSize = memRequirements.size,.memoryTypeIndex = findMemoryType(physicaldevice,memRequirments.memoryTypeBits,properties)};
+    VK_CHECK(vkAllocateMemory(device,&ai,nullptr,&bufferMemory));
+    vkBindBufferMemory(device,buffer,bufferMemory,0);
+    return true;
+}
+void copyBuffer(VkDevice device,VkCommandPool commandPool,VkQueue graphicsQueue,VkBuffer srcBuffer,VkBuffer dstBuffer,VkDeviceSize size){
+    VkCommandBuffer commandBuffer=beginSingleTimeCommands(device,commandPool,graphicsQueue);
+    const VkBufferCopy copyParam = {.srcOffset=0,.dstOffset=0,.size=size};
+    vkCmdCopyBuffer(commandBuffer,srcBuffer,dstBuffer,1,&cpoyParam);
+    endSingleTimeCommands(device,commandPool,graphicsQueue,commandBuffer);}
+VkCommandBuffer beginSingleTimeCommands(VulkanRenderDevice& vkDev){
+    VkCommandBuffer commandBuffer;
+    const VkCommandBufferAllocateInfo allocInfo = {.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,.pNext = nullptr,.commandPool = vkDev.commandPool,.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,.commandBufferCount =1};
+    vkAllocateCommandBuffers(vkDev.device,&allocInfo,&commandBuffer);
+    const VkCommandBufferBeginInfo beginInfo = {.sType =VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,.pNext = nullptr,.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,.pInheritenceInfo = nullptr};
+    vkBeginCommandBuffer(commandBuffer,&beginInfo);
+    return commandBuffer;}
+void endSingleTimeCommands(VulkanRenderDevice& vkDev,VkCommandBuffer commandBuffer){
+    vkEndCommandBuffer(commandBuffer);
+    const VkSubmitInfo submitInfo = {.sType=VK_STRUCTURE_TYPE_SUBMIT_INFO,.pNext=nullptr,.waitSemaphoreCount=0,.pWaitSemaphores = nullptr,.pWaitDstStageMask = nullptr,.commandBufferCount = 1,.pCommandBuffer = &commandBuffer,.signalSemaphoreCount =0,.pSignalSemaphores=nullptr};
+vkQueueSubmit(vkDev.graphicsQueue,1,&submitInfo,VK_NULL_HANDLE);
+vkQueueWaitIdle(vkDev.graphicsQueue);
+vkFreeCommandBuffers(vkDev.device,vkDev.commandPool,1,&commandBuffer);
+}
+// init complete 
+// uniform buffer 
+struct Uniform Buffer{
+    mat4 mvp;
+} ubo;
+bool createUniformBuffers(){
+    VkDeviceSize bufferSize = sizeof(UniformBuffer);
+    vkState.uniformBuffers.resize(vkDev.swapchainImages.size());
+    vkState.uniformBufferMemory.resize(vkDev.swapchainImages.size());
+    for(size_t i=0;i<vkDev.swapchainImages.size();i++){
+        if(!createBuffer(vkDev.device,vkDev.physicalDevice,bufferSize,VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,VK_MEMORY_PROPERTY_HOST_VISILE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,vkState.uniformBuffers[i],vkState.uniformBufferMemory[i])){
+            printf("Fail: buffers\n");
+            return false;}}
+    return true;}
+void updateUniformBuffer(uint32_t currentImage,const UniformBuffer& ubo){
+    void* data = nullptr;
+    vkMapMemory(vkDev.device,vkState.uniformBuffersMemory[currentImage],0,sizeof(ubo),0,&data);
+    memcpy(data,&ubo,sizeof(ubo));
+    vkUnmapMemory(vkDev.device,vkState.uniformBufferMemory[currentImage]);}
+
