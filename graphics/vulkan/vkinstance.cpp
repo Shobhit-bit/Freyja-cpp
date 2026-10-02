@@ -153,3 +153,12 @@ void destoryVulkanRenderDevice(VulkanRenderDevice&vkDev){
         vkDestroyImageView(vkDev.device,vkDev.swapchainImageViews[i],nullptr);
     vkDestroySwapchainKHR(vkDev.device,vkDev.swapchain,nullptr);
     vkDestroyCommandPool(vkDev.device,vkDev.swapchain,nullptr);
+    vkDestroySemaphore(vkDev.device,vkDev.semaphore,nullptr);
+    vkDestroySemaphore(vkDev.device,vkDev.renderSemaphore,nullptr);
+    vkDestroyDevice(vkDev.device,nullptr);}
+void destroVulkanInstance(VulkanInstance& vk){
+    vkDestroySurfaceKHR(vk.instance,vk.surface,nullptr);
+    vkDestroyDebugReportCallbackEXT(vk.instance,vk.reportCallback,nullptr);
+    vkDestroyDebugUtilsMessengerEXT(vk.instance,vk.messenger,nullptr);
+    vkDestroyInstance(vk.instance,mullptr);}
+//command buffer
