@@ -143,4 +143,13 @@ bool initVulkanRenderDevice(VulkanInstance& vk,VulkanRenderDevice& vkDev,uint32_
     VK_CHECK(createSemaphore(vkDev.device,&vkDev.semaphore));
     VK_CHECK(createSemaphore(vkDev.device,&vkDev.renderSemaphore));
     const VkCommandPoolCreateInfo cpi = {.sType=VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,.flags=0,.queueFamilyIndex=vkDev.graphicsFamily};
-    VK_CHECK(vkCreateCommand
+    VK_CHECK(vkCreateCommandPool(vkDev.device,&cpi,nullptr,&vkDev.commandPool));
+    const VkCommandBufferAllocateInfo ai = {.sType=VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,.pNext=nullptr,.commandPool=vkDev.commandPool,.level=VK_COMMAND_BUFFER_LEVEL_PRIMARY,.commandBuffersCount = (uint32_t)(vkDev.swapchainImages.size())};
+    VK_CHECK(vkAllocateCommandBuffers(vkDev.device,&ai,&vkDev.commandBuffers[0]));
+    return true;}
+//deinitialization
+void destoryVulkanRenderDevice(VulkanRenderDevice&vkDev){
+    for(size_t i=0;i<vkDev.swapchainImages.size();i++)
+        vkDestroyImageView(vkDev.device,vkDev.swapchainImageViews[i],nullptr);
+    vkDestroySwapchainKHR(vkDev.device,vkDev.swapchain,nullptr);
+    vkDestroyCommandPool(vkDev.device,vkDev.swapchain,nullptr);
