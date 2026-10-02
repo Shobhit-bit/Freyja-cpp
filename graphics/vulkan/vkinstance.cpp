@@ -128,4 +128,19 @@ struct VulkanRenderDevice{
     std::vector<VkImageView> swapchainImageViews;
     VkCommandPool commandPool;
     std::vector<VkCommandBuffer> commandBuffers;};
-pg-219
+bool initVulkanRenderDevice(VulkanInstance& vk,VulkanRenderDevice& vkDev,uint32_t width,uint32_t height,std::function<bool(VkPhysicalDevice)>selector,VkPhysicalDeviceFeatures deviceFeatures){
+    VK_CHECK (findSuitablePhysicalDevice(vk.instance,selector,&vkDev.physicalDevice));
+    vkDev.graphicsFamily = findQueueFamilies(vkDev.physicalDevice,VK_QUEUE_GRAPHI_BIT);
+    VK_CHECK(createDevice(vkDev.physicalDevice,deviceFeatures,vkDev.graphicsFamily,&vkDev.device));
+    vkGetDeviceQueue(vkDev.device,vkDev.graphicsFamily,0,&vkDev.graphicsQueue);
+    if(vkDev.graphicsQueue == nullptr)  exit(EXIT_FAILURE);
+    VkBool32 presentSupported =0;
+    vkGetPhysicalDeviceSurfaceSupportKHR(vkDev.physicalDevice,vkDev.graphicsFamily,vkSurface,&presentSupported);
+    if(!presentSupported) exit(Exit_FAILURE);
+    VK_CHECK(createSwapchain(vkDev.device,vkDev.physicalDevice,vk.surface,vkDev.graphicsFamily,width,height,&vkDev.swapchain));
+    const size_t imageCount = createSwapchainImages(vkDev.device,vkDev.swapchain,vkDev.swapchainImages,vkDev.swapchainImageViews);
+    vkDev.commandBuffers.resize(imageCount);
+    VK_CHECK(createSemaphore(vkDev.device,&vkDev.semaphore));
+    VK_CHECK(createSemaphore(vkDev.device,&vkDev.renderSemaphore));
+    const VkCommandPoolCreateInfo cpi = {.sType=VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,.flags=0,.queueFamilyIndex=vkDev.graphicsFamily};
+    VK_CHECK(vkCreateCommand
