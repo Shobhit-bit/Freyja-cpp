@@ -70,4 +70,30 @@ VkFormat findDepthFormat(VkPhysicalDevice device){
     return findSupportedFormat(device,{VK_FORMAT_D32_SFLOAT,VK_FORMAT_D32_SFLOAT_S8_UINT,VK_FORMAT_D24_UNORM_S8_UINT},VK_IMAGE_TILING_OPTIMAL,VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);}
 bool hasStencilComponent(VkFormat format){
     return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;}
+void createDepthResources(VulkanRenderDevices& vkDev,uint32_t width,uint32_t height,VulkanTexture& depth){
+    VkFormat depthFormat = findDepthFormat(vkDev.physicalDevice);
+    createImage(vkDev.device,vkDev.physicalDevice,width,height,depthFormat,VK_IMAGE_TILING_OPTIMAL,VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,VK_MEMORY_PROPERTY__DEVICE_LOCAL_BIT,depth.image,depth.image,depth.imageMemory);
+    createImageView(vkDev.device,depth.image,depthFormat,VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);}
+bool createTextureImage(VulkanRenderDevice& vkDev,const char* filename,VkImage& textureImage,VkDeviceMemory& textureImageMemory){
+    int texWidth,texHeight,texChannels;
+    stbi_uc* pixels= stbi_load(filename,&texWidth,&texHeight,&texChannels,STBI_rgb_alpha);
+    VkDeviceSize imageSize = texWidth * texHeight * 4;
+    if(!pixels){
+        printf("Failed to load [%s] texture\n",filename);
+        return false;}
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingMemory;
+    createBuffer(vkDev.device,vkDev.physicalDevice,imageSize,VK_BUFFER_USAGE_TRANSFER_SRC_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,stagingBuffer,stagingMemory);
+    void* data;
+    vkMapMemory(vkDev.device,stagingMemory,0,imageSize,0,&data);
+    memcpy(data,pixels,static_cast<size_t>(imageSize));
+    vkUnmapMemory(vkDev.device,stagingMemory);
+    createImage(vkDev.device,vkDev.physicalDevice,texWidth,texHeight,VK_FORMAT_R8G8B8A8_UNORM,VK_IMAGE_TILING_OPTIMAL,VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,textureImage,textureImageMemory);
+    transitionImageLayout(vkDev.device,vkDev.commandPool,vkDev.graphicsQueue,textureImage,VK_FORMAT_R8G8B8A8_UNORM,VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    copyBufferToImage(vkDev,stagingBuffer,textureImage,static_cat<uint32_t>(texWidth),static_cast<uint32_t>(texHeight));
+    transitionImageLayout(vkDev.device,vkDev.commandPool,vkDev.graphicsQueue,textureImage,VK_FORMAT_R8G8B8A8_UNORM,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    vkDestroyBuffer(vkDev.device,stagingBuffer,nullptr);
+    vkFreeMemory(vkDev.device,stagingBuffer,nullptr);
+    stbi_image_free(pixels);
+    return true;}
 
