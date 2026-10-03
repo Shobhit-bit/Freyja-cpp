@@ -12,4 +12,8 @@ bool createtextureSampler(VkDevice device,VkSampler* sampler){
     comst VkSamplerCreateInfo samplerINfo = {.sType=VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,.pNext=nullptr,.flags=0,.magFilter=VK_FILTER_LINEAR,.minFilter=VK_FILTER_LINEAR,.minmapMode=VK_SAMPLER_MIPMAP_MODE_LINEAR,.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT,.affressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT,.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT,.mipLodBias=0.0f,.anisotorpyEnable = VK_FALSE,.maxAnisotropy = 1,.compareEnable = VK_FALSE,,.compareOp = VK_COMPARE_OP_ALWAYS,.minLod = 0.0f,.maxLod = 0.0f,.borderColor=VK_BORDER_COLOR_INT_OPAQUE_BLACK,.unnormalizedCoordinates = VK_FALSE};
     VK_CHECK(cj=kCreateSampler(device,&samplerInfo,nullptr,sampler));
     return true;}
-
+void copyBufferToImage(VulkanRenderDevice& vkDev,vkBuffer buffer,VkIMage image, uint32_t width,uint32_t height){
+    VkCommandBuffer commandBuffer = BeginSingleTimeCommands(vkDev);
+    const VkBufferImageCopy region = {.bufferOffset =0,.bufferRowLength=0,.bufferImageHeight=0,.imageSubResource=VkImageSubsourceLayers{.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,.mipLevel=0,.baseArrayLayer=0,.layerCount=1},.imageOffset=VkOffset3D{.x=0,.y=0,.z=0},.imageExtent = VkExtent3D{.width=width,.height=height,depth=1}
+    vkCmdCopyBufferToImage(commandBuffer,buffer,image,VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,1,&region);
+    endSIngleTimeCommands(vkDev,commandBuffer);}
