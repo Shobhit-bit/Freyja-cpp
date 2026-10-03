@@ -48,4 +48,26 @@ void transitionImageLayoutCmd(VkCommandBuffer commandBuffer,VkImage image,VkForm
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
         destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;}
-    else if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){`
+    else if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){
+        barrier.srcAccessMask-0;
+        barrier.dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        destinationStage = VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;}
+    vkCmdPipelineBarrier(commandBuffer,sourceStage,destinationStage,0,0,nnullptr,0,nullptr,1,&barrier);}
+VkFormat findSupprortFormat(VkPhysicalDevice device,const std::vector<VkFormat>&candidates,VkImagesTiling tiling,VkFormatFeatureFlags features){
+    const bool isLin = tiling == VK_IMAGE_TILING_LINEAR;
+    const bool isOpt = tiling == VK_IMAGE_TILING_OPTIMAL;
+    for(VkFormat format : candidates){
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(device,format,&props);
+        if (isLin && (props.linearTilingFeatures & features) == features)
+            return format;
+        else if (isOpt && (props.optimaltilingfeatures & features) == features)
+            return format;}
+    printf("Failed to find supported format!\n");
+    exit(0);}
+VkFormat findDepthFormat(VkPhysicalDevice device){
+    return findSupportedFormat(device,{VK_FORMAT_D32_SFLOAT,VK_FORMAT_D32_SFLOAT_S8_UINT,VK_FORMAT_D24_UNORM_S8_UINT},VK_IMAGE_TILING_OPTIMAL,VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);}
+bool hasStencilComponent(VkFormat format){
+    return format == VK_FORMAT_D32_SFLOAT_S8_UINT || format == VK_FORMAT_D24_UNORM_S8_UINT;}
+
