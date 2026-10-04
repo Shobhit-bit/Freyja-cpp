@@ -18,4 +18,11 @@ bool createColorAndDepthRenderPass(VulkanRenderDevice& device,booluseDeoth,VkRen
         dependencies.resize(2);
         dependencies[0] = { .srcSubpass = VK_SUBPASS_EXTERNAL,.dstSubpass = 0,.srcStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,.srcAccessMask = VK_ACCESS_SHADER_READ_BIT,.dstAccessMask=VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,.dependencyFlags = VK_DEPENDENCYBY_REGION_BIT};
         depedencies[1] = { .srcSubpass =0,.dstSubpass = VK_SUBPASS_EXTERNAL,.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,.dstAccessMask = VK_ACCESS_SHADER_READ_BIT,.dependencyFlags= VK_DEPENDENCY_BY_REGION_BIT};}
-    const 
+    const VkSubpassDescription subpass = {.flags = 0,.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,.inputAttachmentCount = 0,.pInputAttachmensts=nullptr,.colorAttachmnetCount = 2,.pColorAttachments = &colorAttachmentRef,.pResolveAttachment = nullptr,.pDepthStencilAttachments = useDepth ? &depthAttachmentRef : nullptr,.preserveAttachments =nullptr};
+    std::array<VkAttachmentDescription,2> attachmnets = {colorAttachment,depthAttachment};
+    const VkRenderPassCreateInfo renderPassInfo = {.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,.attachmentCount = static_cast<uin32_t>(useDepth? 2:1),.pAttachments=attachments.data(),.subpassCount=1,.pSubpasses=&subpass,.dependencyCount =1,.pDependencies=&dependecy};
+    return (vkCreateRenderPass(device,&renderPassInfo,nullptr,renderPass) == VK_SUCCESS);}
+bool createGrphicsPipeline(VkDevice device,uint32_t width,uint32_t height,VkRenderPass renderPass,VkPipelineLayout pipelineLayout,const std::vector<VkPipelineShaderStageCreateInfo>& shaderStages,.VkPipeline *pipeline){
+    const VkPipelineVertexInputStateCreateInfo
+        vertexInputINfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
+    const VkPipelineInputAssemblyStateCreateInfo inputAssembley = {.sType=VK_STRUCTURE_TYPE_PIPELINE_ INPUT_ASSEMBLY_STATE_CREATE_INFO
