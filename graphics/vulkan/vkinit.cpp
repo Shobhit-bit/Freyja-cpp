@@ -32,3 +32,10 @@ bool createGrphicsPipeline(VkDevice device,uint32_t width,uint32_t height,VkRend
     const VkPipelineRasterizationStateCreateInfo
         rasterizer = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,.polygonMode = VK_POLYGON_MODE_FILL,.cullMode=VK_CULL_MODE_NONE,.fraontFace=VK_FRONT_FACE_CLOCKWISE,.lineWidth=1.0f};
     const VkPipelineMultisampleStateCreateInfo multisampling = {.sType = VK_STUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,.rasterizationSamples=VK_SAMPLE_COUNT_1_BIT,.sampleShadingEnable = VK_FALSE,.minSampleShading=1.0f};
+    const VkPipelineColorBlendAttachmentState colorBlendAttachment = {.blendEnable = VK_FALSE,.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT };
+    const VkPipelineColorBlendSstateCreateInfo colorBlending = {.sType = VK_STUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,.logicOpEnable = VK_FALSE,.logicOp = VK_LOGIN_OP_COPY,.attachmentCount = 1,.pAttachments = &colorBlendAttachment,.blendConstants = {0.0f,0.0f,0.0f,0.0f}};
+    const VkPipelineDepthStencilStateCreateInfo depthStencil = {.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,.depthTestEnable = VK_TRUE,.depthWriteEnable = VK_TRUE,.depthCompareOp = VK_COMPARE_OP_LESS,.depthBoundsTestEnable = VK_FALSE,.minDepthBounds =0.0f,.maxDepthBounds=1.0f};
+    const VkGraphicsPipelineCreateInfo pipelineInfo = {.sTyoe = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,.stageCount = static_cast<uint32_t>(shaderStages.size()),.pStages=shaderStages.data(),.pVertexInputState = &vertexInputInfo,.pInputAssemblyState=&inputAssembly,.pTessellationState = nullptr,.pViewportState=&viewportState,.pRasterizationState=&rasterizer,.pMultisampleState = &multisampling,.pDepthStencilState = &depthStencil,.pColorBlendState=&colorBlending,.layout=pipelineLayout,.renderPass = renderPass,.subpass=0,.basePipelineHandle=VK_NULL_HANDLE,.basePipelineIndex=-1};
+    VK_CHECK(vkCreateGraphicsPipelines(device,VK_NULL_HANDLE,1,&pipelineInfo,nullptr,pipeline));
+    return true;}
+
