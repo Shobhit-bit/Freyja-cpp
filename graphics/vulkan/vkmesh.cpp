@@ -121,5 +121,8 @@ VkResult createShaderModule(VkDevice device,ShaderModule* sm,const char* fileNam
     if(!compileShaderFile(fileName,*sm)) return VK_NOT_READY;
     const VkShaderModuleCreateInfo createInfo = {.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,.codeSize=shader->SPIRV.size() * sizeof(unsigned int),.pCode = shader->SPIRV.data()};
     return vkCreateShaderModule(device,&createInfo,nullptr,&sm->shaderModule);}
+VK_CHECK(createShaderModule(vkDev.device.&vkState.vertShader,"data/shaders/VK02.vert"));
+VK_CHECK(createShaderModule(vkDev.device,&vkState.fragShader),"data/shaders/VK02.frag"));
+VK_CHECK(createShaderModule(vkDev.device,&vkState.geomShader,"data/shaders/VK02.geom"));
 
 
