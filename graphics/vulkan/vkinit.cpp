@@ -25,4 +25,10 @@ bool createColorAndDepthRenderPass(VulkanRenderDevice& device,booluseDeoth,VkRen
 bool createGrphicsPipeline(VkDevice device,uint32_t width,uint32_t height,VkRenderPass renderPass,VkPipelineLayout pipelineLayout,const std::vector<VkPipelineShaderStageCreateInfo>& shaderStages,.VkPipeline *pipeline){
     const VkPipelineVertexInputStateCreateInfo
         vertexInputINfo = {.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
-    const VkPipelineInputAssemblyStateCreateInfo inputAssembley = {.sType=VK_STRUCTURE_TYPE_PIPELINE_ INPUT_ASSEMBLY_STATE_CREATE_INFO
+    const VkPipelineInputAssemblyStateCreateInfo inputAssembley = {.sType=VK_STRUCTURE_TYPE_PIPELINE_ INPUT_ASSEMBLY_STATE_CREATE_INFO,.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,.primitiveRestratEnable = VK_FALSE};
+    const VkViewport viewport = {.x = 0.0f,.y=0.0f,.width =static_cast<float>(width),.height=static_cast<float>(height),.minDepth=0.0f,.maxDepth=1.0f};
+    const VkRect2D scissor = {.offset={0,0},.extent={width,height}};
+    const VkPipelineViewportStateCreateInfo viewportState={.sType=VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,.viewportCount=1,.pViewports = &viewport,.scissorCount=1,.pScissors=&scissor};
+    const VkPipelineRasterizationStateCreateInfo
+        rasterizer = {.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO,.polygonMode = VK_POLYGON_MODE_FILL,.cullMode=VK_CULL_MODE_NONE,.fraontFace=VK_FRONT_FACE_CLOCKWISE,.lineWidth=1.0f};
+    const VkPipelineMultisampleStateCreateInfo multisampling = {.sType = VK_STUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,.rasterizationSamples=VK_SAMPLE_COUNT_1_BIT,.sampleShadingEnable = VK_FALSE,.minSampleShading=1.0f};
