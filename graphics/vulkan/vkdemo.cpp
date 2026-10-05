@@ -40,5 +40,10 @@ bool initVulkan(){
     createImageView(vkDev.device,vkState.texture.image,VK_FORMAT_R8B8G8A8_UNORM,VK_IMAGE_ASPECT_COLOR_BIT,&vkState.texture.imageView);
     createTextureSampler(vkDev.device,&vkState.textureSampler);
     createDepthResources(vkDev,kScreenWidth,kScreenHeight,vkState.depthTexture);
-    const bool 
-        
+    const bool isIntialized = createDescriptorPool(vkDev.device,static_cast<uint32_t>(vkDev.swapchainImages.size()),1,2,1,&vkState.descriptorPool) && createDescriptorSet() && createColorAndDepthRenderPass(vkDev,true,&vkState.renderPass,RenderPassCreateInfo{.clearColor_ = true,.clearDepth_=true,.flags_ =eRenderPassBit_First|eRenderPassBit_Last}) && createPipelineLayout(vkDev.device,vkStatedescriptorSetLayout,&vkState.pipelineLayout) && createGraphicsPipeline(vkDev.device,kScreenWidth,kScrrenHeight,vkState.renderPass,vkState.pipelineLayout,shaderStages,&vkState.graphicsPipeline);
+    if(!isInitialized){
+        printf("failed to pipeline\n");
+        exit(EXIT_FAILURE);}
+    createColorAndDepthFramebuffers(vkDev,vkState.renderPass,vkState.depthTexture.imageView,kScreenWidth,kScreenHeight,vkState.swapchainFramebuffers);
+    return VK_SUCCESS;}
+
