@@ -54,4 +54,8 @@ VulkanClear::VulkanClear(
     if(!createColorAndDepthRenderPass(vkDev,shouldClearDepth,&renderPass_,RenderPassCreateInfo{.clearColor_ = true,.clearDepth_ = true,.flags_ =eRenderPassBit_First})){
         printf("VulkanClear: failed to create render pass\n");
         exit(EXIT_FAILURE);}}
+    createColorAndDeothFramebuffers(vkDev,renderPass_,depthTexture.imageView,swapchainFramebuffers_);}
+void VulkanClear::fillCommandBuffer(VkCommandBuffer(VkCommandBuffer commandBuffer,size_t swapFrameBuffer){
+    const VkClearValue{.color = {1.0f,1.0f,1.0f,1.0f}},VkClearValue{.depthStencil = {1.0f,0,0f}}};
+    const VkRect2D screenRect = {.offset = {0,0},.extent = .width = framebufferWidth_,.height=framebufferHeight_}};
 
