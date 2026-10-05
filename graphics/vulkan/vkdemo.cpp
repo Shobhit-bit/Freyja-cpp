@@ -46,4 +46,17 @@ bool initVulkan(){
         exit(EXIT_FAILURE);}
     createColorAndDepthFramebuffers(vkDev,vkState.renderPass,vkState.depthTexture.imageView,kScreenWidth,kScreenHeight,vkState.swapchainFramebuffers);
     return VK_SUCCESS;}
+bool drawOverlay(){
+    uint32_t imageIndex =0;
+    VK_CHECK(vkAcquireNextImageKHR(vkDev.device,vkDev.swapchain,0,vkDev.semaphore,VK_NULL_HANDLE,&imageIndex);
+            VK_CHECK(vkResetCommandPool(vkDev.device,vkDev.commandPool,0));
+    int width,height;
+    glfwGetFramebufferSize(window,&width,&height);
+    const float ratio = width/(float)height;
+    const mat4 ml = glm::rotate(glm::translate(mat4(1.0f),vec3(0.f,0.5f,-1.5f)) * glm::rotate(mat4(1.f),glm::pi<float>(),vec3(1,0,0)),(float)glfwGetTime(),vec3(0.0f,1.0f,0.0f));
+    const mat4 p =glm::persetective(45.0f,ratio,0.1f,1000.0f);
+    const UniformBuffer ubo{.mvp = p*ml};
+    updateUniformBuffer(imageIndex,ubo);
+    fillCommandBuffer();
+    const VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 
