@@ -43,4 +43,15 @@ RenderBase::~RendererBase(){
     vkDestroyRenderPass(device_,renderPass_,nullptr);
     vkDestroyPipelineLayout(device_,pipelineLayout_,nullptr);
     vkDestroyPipeline(device_,graphicsPipeline_,nullptr);}
+class VulkanClear:public RendererBase{
+    public:
+        VulkanClear(VUlkanRenderDevice& vkDev,VulkanImage DepthTexture);
+        virtual void fillCommandBuffer(VkCommandBuffer commandBuffer,size_t currentImage) override;
+    private:
+        bool shouldClearDepth;};
+VulkanClear::VulkanClear(
+        VulkanRenderDevice& vkDev,VulkanImage depthTexture) : RendererBase(vkDev,depthTexture),shouldClearDepth(depthTexture.image != VK_NULL_HANDLE){
+    if(!createColorAndDepthRenderPass(vkDev,shouldClearDepth,&renderPass_,RenderPassCreateInfo{.clearColor_ = true,.clearDepth_ = true,.flags_ =eRenderPassBit_First})){
+        printf("VulkanClear: failed to create render pass\n");
+        exit(EXIT_FAILURE);}}
 
