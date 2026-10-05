@@ -61,4 +61,8 @@ bool drawOverlay(){
     const VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
     const VkSubmitInfo si ={.sType=VK_STRUCTURE_TYPE_SUBMIT_INFO,.pNext = nullptr,.waitSemaphoreCount = 1,.pWaitSemaphore=&vkDev.semaphore,.pWaitDstStageMask=waitStages,.commandBufferCount=1,.pCommandBuffers=&vkDev.commandBuffer[imageIndex],.signalSemaphoreCount=1,.pSignalSemaphore = &vkDev.renderSemaphore};
     VK_CHECK(vkQueueSubmit(vkDev.graphicsQueue,1,&si,nullptr));
-    const VkPresentInfoKHR pi= {.sType=VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,.pNext=nullptr,.pWaitSemaphore
+    const VkPresentInfoKHR pi= {.sType=VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,.pNext=nullptr,.pWaitSemaphore=&vkDev.renderSemaphore,.swapchainCount=1,.pSwapchains=&vkDev.swapchain,.pImageIndicies=&imageIndex};
+    VK_CHECK(vkQueuePresentKHR(vkDev.graphicsQueue,&pi));
+    VK_CHECK(vkDeviceWaitIdle(vkDev.device));
+    return true;}
+
