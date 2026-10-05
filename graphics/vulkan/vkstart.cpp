@@ -6,3 +6,6 @@ class RendererBase{
     {return depthTexture_;}
     protected:
         void beginRenderPass(VkCommandBuffer commandBuffer,size_t currentImage);
+        bool createUniformBuffers(VulkanRenderDevice& vkDev,size_t uniformDataSize);
+        uint32_t framebufferWidth_;
+        uint32_t framebufferHeight_;
