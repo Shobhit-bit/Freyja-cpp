@@ -29,5 +29,16 @@ bool initVulkan(){
     VK_CHECK(createShaderMOdule(vkDev.device,&vkState.vertShader,"data/shaders/VK02.vert"));
     VK_CHECK(createShaderModule(vkDev.device,&vkState.fragShader,"data/shader/VK02.frag"));
     VK_CHECK(createShaderMPdule(vkDev.device,&vkState.geomShader,"data/shader/VK02.geom"));
-    if(!createTextured
+    if(!createTexturedVertexBuffer(vkDev,"data/rubber_duck/scene.gltf",&vkState.storageBuffer,&vkState.storageBufferMemory,&vertexBufferSize,&indexBufferSize) || !createUniformBuffers()){
+        printf("Cannot create data buffers\n");
+        exit(EXIT_FAILURE);}
+    const std::vector<VkPipelineShaderStageCreateInfo>
+        shaderStages = { shaderStageInfo(VK_SHADER_STAGE_VERTEX_BIT,vkState.vertShader,"main"),
+            shaderStageInfo(VK_SHADER_STAGE_FRAGMENT_BIT,vkState.fragShader,"main"),
+            shaderStafeInfo(VK_SHADER_STAGE_GEOMETRY_BIT,vkState.geomShader,"main")};
+    createTextureImage(vkDev,"data/rubber_duck/textures/Duck_baseColor.png",vkState.texture.image,vkState.texture.imageMemory);
+    createImageView(vkDev.device,vkState.texture.image,VK_FORMAT_R8B8G8A8_UNORM,VK_IMAGE_ASPECT_COLOR_BIT,&vkState.texture.imageView);
+    createTextureSampler(vkDev.device,&vkState.textureSampler);
+    createDepthResources(vkDev,kScreenWidth,kScreenHeight,vkState.depthTexture);
+    const bool 
         
