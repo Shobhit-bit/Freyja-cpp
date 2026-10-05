@@ -39,3 +39,8 @@ RenderBase::~RendererBase(){
     vkDestroyDescriptorSetLayout(device_,descriptorSetLayout_,nullptr);
     vkDestroyDescriptorPool(device_,descriptorPool_,nullptr);
     for(auto frameBuffer : swapinFramebuffers_)
+        vkDestroyFramebuffer(device_,framebuffer,nullptr);
+    vkDestroyRenderPass(device_,renderPass_,nullptr);
+    vkDestroyPipelineLayout(device_,pipelineLayout_,nullptr);
+    vkDestroyPipeline(device_,graphicsPipeline_,nullptr);}
+
