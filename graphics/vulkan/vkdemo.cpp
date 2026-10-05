@@ -59,4 +59,5 @@ bool drawOverlay(){
     updateUniformBuffer(imageIndex,ubo);
     fillCommandBuffer();
     const VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    const VkSubmitInfo si ={.sType=VK_STRUCTURE_TYPE_SUBMIT_INFO,.pNext = nullptr,.waitSemaphoreCount = 1
 
