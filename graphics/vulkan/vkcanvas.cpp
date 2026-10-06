@@ -19,7 +19,11 @@ class VulkanCanvas: public RendererBase{
         std::vector<VkBuffer> storageBuffer;
         std::vector<VkDeviceMemory> storageBufferMemory;
         bool createDescriptorSet(vulkanRenderDevice& vkDev);
-        static sonstexpr unsigned kMaxLinesCount = 65536;
-        static constexor unsigned kMaxLinesDataSize = 2*kMaxLinesCount * sizeof(VulkanCanvas::VertexData);};
-
-
+        static constexpr unsigned kMaxLinesCount = 65536;
+        static constexpr unsigned kmaxlinesdatasize = 2*kmaxlinescount * sizeof(vulkancanvas::vertexdata);};
+void VulkanCanvas::plane3d(const vec3& o,const vec3& v1,const vec3& v2,int n1,int n2,float s1,float s2,const vec4& color,const vec4& outlineColor){
+    line(o-s1 / 2.0f * v1 -s2 / 2.0f * v2,o-s1,2.0f * v1+s2/2.0f * v2,outlineColor);
+    line(o+s1/2.0f*v1-s2/2.0f*v2,o+s1/2.0f*v1+s2/2.0f*v2,outlineColor);
+    line(o-s1/2.0f*v1+s2/2.0f*v2,o+s1/2.0f*v1+s2/2.0f*v2,oultineColor);
+    line(o-s1/2.0f*v1-s2/2.0f*v2,o+s1/2.0f*v1-s2/2.0f*v2,outlineColor);
+    for(int 
