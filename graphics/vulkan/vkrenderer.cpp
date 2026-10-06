@@ -19,4 +19,11 @@ ModelRenderer::ModelREnderer(VulkanRenderDevice& vkDev,const char* modelFile,con
     createTextureImage(vkDev,textureFile,texture_,image,texture_.imageMemory);
     createImageView(vkDev.device,texture_.image,VK_FORMAT_R8G8B8A8_UNORM,VK_IMAGE_ASPECT_COLOR_BIT,&texture_.imageView);
     createTextureSampler(vkDev.device,&textureSampler_);}
-bool ModelRenderer :: createDescriptor
+bool ModelRenderer :: createDescriptorSet(VulkanRenderDevice& vkDev,uint32_t uniformDataSize){
+    const std::array<VkDescriptorSetLayoutBinding,4>    binding = {descriptorSetLayoutBinding(0,VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,VK_SHADER_STAGE_VERTEX_BIT),
+        descriptorSetLayoutBinding(1,VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,VK_SHADER_STAGE_VERTEX_BIT),descriptorSetLayoutBinding(2,VKDECRIPTOR_TYPE_STORAGE_BUFFER,VK_SHADER_STAGE_VERTEX_BIT),descriptorSetLayoutBinding(3,VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,VK_SHADER_STAGE_FRAGMENT_BIT)};
+    const VkDescriptorSetLayoutCreateInfo layoutInfo = {.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,.pNext = nullptr,.flags=0,.bindingCount = static_cast<uint32_t> (bindings.size()),.pBindings=bindings.data()};
+    VK_CHECK(vkCreateDescriptorSetLayout(vkDev.device,&layoutInfo,nullptr,&descriptorSetLayout_));
+    std::vector<VkDescriptorSetLayout>
+        layouts(vkdev.swapchainImages.size(),descriptorSetLayout_);
+    const VkDescriptorSetAllocateInfo allocInfo = {.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,.pNext = nullptr
