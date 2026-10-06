@@ -58,4 +58,16 @@ VulkanClear::VulkanClear(
 void VulkanClear::fillCommandBuffer(VkCommandBuffer(VkCommandBuffer commandBuffer,size_t swapFrameBuffer){
     const VkClearValue{.color = {1.0f,1.0f,1.0f,1.0f}},VkClearValue{.depthStencil = {1.0f,0,0f}}};
     const VkRect2D screenRect = {.offset = {0,0},.extent = .width = framebufferWidth_,.height=framebufferHeight_}};
+    const VkRenderPassBeginInfo renderPassBeginINfo renderPassINfo = {.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO,.renderPass = renderPAss_,.frameBuffer=swapchainFramebuffer_[swapFramebuffer],.renderArea = screenRect,.clearValueCount = shouldClearDepth ? 2u : 1u,.pClearValues = &clearValues[0]};
+    vkCmdBeginRenderPass(commandBuffer);}
+    class VulkanFinish:public RendererBase {
+    public:
+        VulkanFinish(VulkanRenderDevice& vkDev,vulkanImage depthTexture);
+        virtual void fillCommandBuffer(VkCommandBuffer commandBuffer,size_t currentImage) override;};
+VulkanFinish::VulkanFinish(
+    VulkanRenderdevice& vkDev,VulkanImage depthTexture) : RendererBase(vkDev,depthTexture){
+    if(!createColorAndDepthRenderPass(vkDev,(depthTexture.image != VK_NULL_HANDLE),&renderPass_,RenderPassCreateInfo{.clearColor_ = false,.clearDepth_ = false,.flags_ = eRenderPassBit_Last})){
+    printf("VulkanFinish:failed to create render pass\n");
+    exit(EXIT_FAILURE);}
+    createColorAndDepthFramebuffers(vkDev,renderPass_,depthTExture.imageView,swapchainFramebuffers_);}
 
