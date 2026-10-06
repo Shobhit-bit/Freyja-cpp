@@ -26,4 +26,12 @@ void VulkanCanvas::plane3d(const vec3& o,const vec3& v1,const vec3& v2,int n1,in
     line(o+s1/2.0f*v1-s2/2.0f*v2,o+s1/2.0f*v1+s2/2.0f*v2,outlineColor);
     line(o-s1/2.0f*v1+s2/2.0f*v2,o+s1/2.0f*v1+s2/2.0f*v2,oultineColor);
     line(o-s1/2.0f*v1-s2/2.0f*v2,o+s1/2.0f*v1-s2/2.0f*v2,outlineColor);
-    for(int 
+    for(int ii =1;ii < n1;i++){
+        const float t = ((float)ii - (float)n1 / 2.0f) * s1 / (float)n1;
+        const vec3 o1 = o+t * v1;
+        line(o1-s2 / 2.0f * v2,o1 + s2 / 2.0f * v2,color);}
+    for(int ii=1;ii<n2;ii++){
+        const float t = ((float)ii - (float)n2 / 2.0f) *s2 /(float)n2;
+        const vec3 o2 = o+t*v2;
+        line(o2-s1/2.0f*v1,o2+s1/2.0f * v1,color);}
+
