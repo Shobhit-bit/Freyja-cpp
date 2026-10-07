@@ -90,4 +90,37 @@ ImGuiRenderer::ImGuiRenderer(VulkanRenderDevice& vkDev) : RendererBase(vkDev,Vul
     }
     //pipeline
 }
-
+bool createFontTexture(ImGuiIO& io, const char* fontFile,VulkanRenderDevice& vkDev,VkIMage& textureImage,VkDeviceMemory& textureImageMemory){
+    ImFontConfig cfg = ImFontConfig();
+    cfg.FontDataOwnedByAtlas = false;
+    cfg.RasterizerMultiply = 1.5f;
+    cfg.SizePixels = 768.0f/32.0f;
+    cfg.PixelSnapH = true;
+    cfg.OversampleH = 4;
+    cfg.OversampleV = 4;
+    ImFont* Font = io.Fonts->AddFontFromFileTTF(fontFile,cfg.SizePixels,&cfg);
+    unsigned char* pixels = nullptr;
+    int texWidth,texHeight;
+    io.Fonts->GetTexDataAsRGBA32(&pixles,&texWidth,&texHeight);
+    if(!pixels || !createTextureImageFromData(vkDev,textureImage,textureImageMemory,pixels,texWidth,texHeight,VK_FORMAT_R8G8B8A8_UNORM)){
+        printf("Failed to load texture\n");
+        return false;}
+    io.Fonts->TexID = (ImTextureID)0;
+    io.FontDefault = Font;
+    io.DisplayFramebufferScale = ImVec2(1,1);
+    return true;}
+void ImGuiRenderer::filCommandBuffer(VkCommandBuffer commandBuffer,size_t currentImage){
+    beginRenderPass(commandBuffer,currentImage);
+    ImVec2 clipOff = drawData->DisplayPos;
+    ImVec2 clipScale = drawData->FramebufferScale;
+    int vtxOffset =0;
+    int idxOffset =0;
+    for(int n=0;n<drawData->CmdListsCount;n++){
+        const ImDrawLists* cmdList = drawData ->CmdLists[n];
+        for(int cmd=0;cmd<cmdList->CmdBuffer.Size;cmd++){
+            const ImDrawCmd* pcmd = &cmdLists->CmdBuffer[cmd];
+            sddImGuiItem(framebufferWidth_,framebufferHeight_,commandBuffer,pcmd,clipOff,clipScale,idxOffset,vtxOffset);}
+        idxOffset+=cmdList->IdxBuffer.Size;
+        vtxOffset+=cmdList->VtxBuffer.Size;}
+    vkCmdEndRenderPass(commandBuffer);}
+void addImGuiItem(uint32_t width,uint32_t height,VkCommandBuffer commandBuffer
