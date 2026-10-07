@@ -61,4 +61,33 @@ void VulkanCanvas::fillCommandBuffer(VkCommandBuffer commandBuffer,size_t curren
     vkCmdEndRenderPass(commandBuffer);}
 //dearimgui
 class ImGuiRenderer:public RenderBase{
+    public:
+        explicit ImGuiRenderer(VulkanRendererDevice& vkDev);
+        virtual ~ImGuiRenderer();
+        virtual void fillCommanBuffer(VkCommandBuffer commandBuffer,size_t currentImage) override;
+        void updateBuffers(VulkanRenderDevice& vkDev,uint32_t currentImage,const ImDrawData* imguiDrawData);
+    private:
+        const ImDrawData* drawData = nullptr;
+        bool createDescriptorSet(VulkanRenderDevice& vkDev);
+        VkDevicSize bufferSize;
+        std::vector<VkBuffer> storageBuffer;
+        std::vector<VkDeviceMemory> storageBufferMemory;
+        VkSampler fontSampler;
+        VulkanImage font;};
+const uint32_t ImGuiVtxBufferSize = 64*1024*sizeof(ImDrawVert);
+const uint32_t ImGuiIdxBufferSize = 64*1024*sizeof(int);
+ImGuiRenderer::ImGuiRenderer(VulkanRenderDevice& vkDev) : RendererBase(vkDev,VulkanImage()){
+    ImGuiIO& io = ImGui::GetIO();
+    createFontTexture(io,"data/OpenSans-Light.ttf",vkDev,font_.image,font_.imageMemory);
+    createImageView(vkDev.device,font_.image,VK_FORMAT_R8G8B8A8_UNORM,VK_IMAGE_ASPECT_COLOR_BIT,&font_.imageView);
+    createTextureSampler(vkDev.device,&fontSampler_);
+    const size_t imgCount = vkDev.swapchainImages.size();
+    storageBuffer_.resize(imgCount);
+    storageBufferMemory_.resize(imgCount);
+    bufferSize = ImGuiVtxBufferSize + ImGuiIdxBufferSize;
+    for(size_t i=0;i<imgCount;i++){
+        // buffer creation
+    }
+    //pipeline
+}
 
