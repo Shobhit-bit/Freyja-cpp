@@ -131,4 +131,26 @@ void addImGuiItem(uint32_t width,uint32_t height,VkCommandBuffer commandBuffer,c
     clipRect.z =(pcmd->ClipRect.z - clipRect.x) * clipScale.x;
     clipRect.w = (pcmd->ClipRect.w - clipOff.y) * clipScale.y;
     if(clipRect.x < width && clipRect.y < height && clipRect.z >= 0.0f && clipRect.w >= 0.0f){
-        if (clipRect.x < 0.0f) clipRect.x = 0.0f
+        if (clipRect.x < 0.0f) clipRect.x = 0.0f;
+        if(clipRect.y < 0.0f) clipRect.y =0.0f;}
+    const VkRect2D scissor ={.offset = {.x=(int32_t)(clipRect.x),.y=(int32_t)(clipRect.y)},.extent = {.width =(uint32_t)(clipRect.z - clipRect.x),.height=(unint32_t)(clipRect.w - clipRect.y)}};
+    vkCmdSetScissor(commandBuffer,0,1,&scissor);
+    vkCmdDraw(commandBuffer,pcmd->ElemCount,1,pcmd->IdxOffset+idxOffset,pcmd->VtxOffset+vtxOffset);}}
+void ImGuiRenderer::updateBuffers(VulkanRendererDevice& vkDev,uint32_t currentImage,const ImDrawData* imguiDrawData){
+    drawData = imguiDrawData;
+    const float L = drawData->DisplayPos.x;
+    const float R = drawData->DisplayPos.x+drawdata->DisplaySize.x;
+    const float T = drawData->DisplayPos.y;
+    const float B = drawData->DisplayPos.y+drawData->DisplaySize.y;
+    const mat4 inMtx = glm::ortho(L,R,T,B);
+    uploadBufferData(vkDev,uniformBuffersMemory_[currentImage],0,glm::value_ptr(inMtx),sizeof(mat4));
+    void* data =nullptr;
+    vkMapMemory(vkDev.device,storageBufferMemory_[currentImage],0,bufferSize_,0,&data);
+    ImDrawVert* vtx = (ImDrawVert*)data;
+    for(int n=0;n<drawData->CmdListsCount;n++){
+        const ImDrawList* cmdList = drawData->CmdLists[n];
+        memcpy(vtx,cmdLists->VtxBuffer.Data,cmdList->VtxBuffer.Size*sizeof(ImDrawVert));
+        vtx+=cmdLists->VtxBuffer.Size;}
+    const uint32_t* idx = (const uint32_t*)((uint8_t*)data+ImGuiVtxBufferSize);
+    for(int n=0;n<drawData->CmdListsCount;n++){
+        const ImDraw
