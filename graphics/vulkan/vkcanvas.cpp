@@ -123,4 +123,12 @@ void ImGuiRenderer::filCommandBuffer(VkCommandBuffer commandBuffer,size_t curren
         idxOffset+=cmdList->IdxBuffer.Size;
         vtxOffset+=cmdList->VtxBuffer.Size;}
     vkCmdEndRenderPass(commandBuffer);}
-void addImGuiItem(uint32_t width,uint32_t height,VkCommandBuffer commandBuffer
+void addImGuiItem(uint32_t width,uint32_t height,VkCommandBuffer commandBuffer,const ImDrawCmd* pcmd,ImVec2 clipOff,ImVec2 clipScale,int idxOffset,int vtxOffset){
+    if(pcmd->UserCallback) return;
+    ImVec4 clipRect;
+    clipRect.x = (pcmd->ClipRect.x - clipOff.x) * clipScale.x;
+    clipRect.y = (pcmd->ClipRect.y - clipOff.y) * clipScale.y;
+    clipRect.z =(pcmd->ClipRect.z - clipRect.x) * clipScale.x;
+    clipRect.w = (pcmd->ClipRect.w - clipOff.y) * clipScale.y;
+    if(clipRect.x < width && clipRect.y < height && clipRect.z >= 0.0f && clipRect.w >= 0.0f){
+        if (clipRect.x < 0.0f) clipRect.x = 0.0f
