@@ -153,4 +153,9 @@ void ImGuiRenderer::updateBuffers(VulkanRendererDevice& vkDev,uint32_t currentIm
         vtx+=cmdLists->VtxBuffer.Size;}
     const uint32_t* idx = (const uint32_t*)((uint8_t*)data+ImGuiVtxBufferSize);
     for(int n=0;n<drawData->CmdListsCount;n++){
-        const ImDraw
+        const ImDrawList* cmdList = drawData->CmdLists[n];
+        const uint16_t* src = (const uint16_t*)cmdList->IdxBuffer.Data;
+        for(int j=0;j<cmdList->IdxBuffer.Size;j++)
+            *idx++ = (uint32_t)*src++;}
+    VkUnmapMemory(vkDev.device,storageBufferMemory_[currentImage]);}
+
