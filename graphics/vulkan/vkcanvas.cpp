@@ -34,4 +34,31 @@ void VulkanCanvas::plane3d(const vec3& o,const vec3& v1,const vec3& v2,int n1,in
         const float t = ((float)ii - (float)n2 / 2.0f) *s2 /(float)n2;
         const vec3 o2 = o+t*v2;
         line(o2-s1/2.0f*v1,o2+s1/2.0f * v1,color);}
+void VulkanCanvas::line(const vec3& p1,const vec3& p2,const vec4& color){
+    lines.push_back({.position = p1,.color=color});
+    lines.push_back({.position=p2,.color=color});}
+void VulkanCanvas""clear(){
+    lines.clear();}
+VulkanCanvas::VulkanCanvas(VUlkanRenderDevice& vkDev,VulkanImage depth) : RendererBase(vkDev,depth){
+    const size_t imgCount = vkDev.swapchainImages.size();
+    storageBuffer.resize(imgCount);
+    storageBufferMemory.resize(imagCount);
+    for(size_t i=0;i<imgCount;i++){
+        if(!createBuffer(vkDev.device,vkDev.physicalDevice,kMaxLinesDataSize,VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,storageBuffer[i],storageBufferMemory[i])){
+            printf("VulkanCanvas: createBuffer() failed\n");
+            exit(EXIT_FAILURE);}}}
+void VulkanCanvas::updateBuffer(VulkanRenderDevice& vkDev,size_t i){
+    if(lines.empty()) return;
+    VkDeviceSize bufferSize = lines.size() * sizeof(VertexData);
+    uploadBufferData(vkDev,storageBufferMemory[i],0,lines.data(),bufferSize);}
+void VulkanCanvas::updateUniformBuffer(VulkanRenderDevice& vkDev,const glm::mat4 modelViewProj,float time,uint32_t currentImage){
+    const UniformBuffer ubo = {.mvp=modelViewProj,.time=time};
+    uploadBufferData(vkDev,uniformBufferMemory_[currentImage],0,&ubo,sizeof(ubo));}
+void VulkanCanvas::fillCommandBuffer(VkCommandBuffer commandBuffer,size_t currentImage){
+    if(lines.empty()) return;
+    beginRenderPass(commandBuffer,currentImage);
+    vkCmdDraw(commandBuffer,lines.size(),1,0,0);
+    vkCmdEndRenderPass(commandBuffer);}
+//dearimgui
+class ImGuiRenderer:public RenderBase{
 
