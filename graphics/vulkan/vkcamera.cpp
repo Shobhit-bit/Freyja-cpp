@@ -115,5 +115,13 @@ class FramesPerSecondCounter {
             accumulatedTime_ -0;
             return true;}
     inline float getFPS() const {return currentFPS_;}};
+double timeStamp = glfwGetTime();
+float deltaSeconds 0.0f;
+FramesPerSecondCounter fpsCounter(0.5f);
+while(!glfwWindowShouldClose(window)){
+    const double newTimeStamp = glfwGetTime();
+    deltaSeconds=static_cast<float>(newTimeStamp -timeStamp);
+    timeStamp -newTimeStamp;
+    fpsCounter.tick(deltaSeconds);}
 
 
