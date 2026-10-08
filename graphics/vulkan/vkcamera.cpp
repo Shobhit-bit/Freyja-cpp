@@ -81,4 +81,14 @@ glfwSetCursorPosCallback(window,[](auto* window,double x,double y){
         mouseState.pos.x = static_cast<float>(x/width);
         mouseState.pos.y = static_cast<float>(y/height);});
 glfwSetMouseButtonCallback(window,[](auto* window,int button,int action,int mods){
+        const bool press = action != GLFW_RELEASE;
+        if (key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(window,GLFW_TRUE);
+        if(key == GLFW_KEY_W) positioner.movement_.forward_ = press;
+        if(key== GLFW_KEY_S) positioner.movement_.backward_= press;
+        if(key==GLFW_KEY_A) positioner.movement_.left_ = press;
+        if(key==GLFW_KEY_D) positioner.movement_.right_ = press;
+        if(key==GLFW_KEY_1) positioner.movement_.up_ = press;
+        if(key==GLFW_KEY_2) positioner.movement_.down_ = press;
+        if (mods & GLFW_MOD_SHIFT) positioner.movement_.fastSpeed_=press;
+        if(key==GLFW_KEY_SPACE) positioner.setUpVectore(vec3(0.0f,1.0f,0.0f));});
 
