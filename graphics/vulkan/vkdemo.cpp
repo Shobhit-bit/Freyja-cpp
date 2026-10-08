@@ -70,4 +70,61 @@ bool drawOverlay(){
     CameraPositioner_FirstPerson positioner_firstPerson(cameraPos,vec3(0.0f,0.0f,-1.0f),vec3(0.0f,1.0f,0.0f));
     CameraPositioner_MoveTopositioner_moveTo(cameraPos,cameraAngles);
     Camera camera = Camera(positioner_firstPerson);
-    positioner_firstPerson
+    positioner_firstPerson.update(deltaSeconds,mouseState.pos,mouseState.pressedLeft);
+    const char* cameraType = "FirstPerson";
+    const char* comboBoxItems[]={"FirstPerson","MoveTo"};
+    const char* currentComboBoxItem = cameraType;
+    ImGui::Begin("Camera Control",nullptr);{
+        if(ImGui::BeginCombo("##combo",currentComboBoxItem)){
+            for(int n=0;n<IM_ARRAYSIZE(comboBoxItems);n++){
+                const bool isSelected = (currentComboBoxItem == comboBoxItems[n]);
+                if(ImGui::Selectable(comboBoxItems[n],isSelected))
+                    currentComboBoxItem = comboBoxItems[n];
+                if(isSelected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();}
+        if(!strcmp(cameraType,"MoveTo")){
+            if(ImGui::SliderFloat3("Position",glm::value_ptr(cameraPos,-10.0f,+10.0f)))
+                positioner_moveTo.setDesiredPostition(cameraPos);
+            if (ImGui::SliderFloat3("pitch/Pan/Roll",glm::valur_ptr(cameraAngles),-90.0f,+90.0f))
+                positioner_moveTo.setDesiredAngles(cameraAngles);}
+    if(currentComboBoxItem && strcmp(currentComboBoxItem,cameraType)){
+        printf("New camera type selected %s\n",currentComboBoxItem);
+        cameraType = currentComboBoxItem;
+        reinitCamera();}}
+class CameraPositioner_MoveTo final:
+    public CameraPositionerInterface{
+            public :
+            float damplingLinear_ = 10.0f;
+            glm::vec3 dampingEularAngles_ = glm::vec3(5.0f,5.0f,5.0f);
+            private:
+            glm::vec3 positionCurrent_ = glm::vec3(0.0f);
+            glm::vec3 positionDesired_ = glm::vec3(0.0f);
+            glm::vec3 anglesCurrent_ = glm::vec3(0.0f);
+            glm::vec3 anglesDesired_ = glm::vec3(0.0f);
+            glm::mat4 currentTransform_ = glm::mat4(1.0f);
+            public:
+            CameraPositioner_MoveTo(const glm::vec3& pos,const glm::vec3& angles):positionCurrent_(pos),positionDesired_(pos),anglesCurrent_(angles),anglesDesired_(angles){}
+    void update(float deltaSeconds,const glm::vec2& mousePos ,bool mousePressed){
+        positionCurrent_+=dampingLinear_ * deltaSeconds * (positionDesired_ - positionCurrent_);
+        anglesCurrent_ = clipAngles(anglesCurrent_);
+        anglesDesired_ = clipAngles(anglesDesired_);
+        anglesCurrent_ -= deltaSeconds * angledelta(anglesCurrent_,anglesDesired_) * dampingEulerAngles_;
+        anglesCurrent_ = clipAngles(anglesCurrent_);
+        const glm::vec3 ang = glm::radians(anglesCurrent_);
+        currentTransform_ = glm::translate(glm::yawPitchRoll(ang.y,ang.x,ang.z),-positionCurrent_);}
+            private:
+            static inline float clipAngle(float d){
+                if(d< -180.0f) return d+360.0f;
+                if(d>+180.0f) return d-360.f;
+                return d;}
+            static inline glm::vec3 clipAngles(const glm::vec3& angles){
+                return glm::vec3(std::fmod(angles.x,360.0f),
+                                std::fmod(angles.y,360.0f),
+                                std::fmod(angles.x,360.0f));
+            }
+        static inline glm::vec3 angleDelta (const glm::vec3& anglesCurrent,const glm::vec3& anglesDesired){
+            const glm::vec3 d=clipAngles(anglesCurrent) -clipAngles(anglesDesired);
+            return glm::vec3(clipAngle(d.x),clipAngle(d.y),clipAngle(d.z));}};
+
+
