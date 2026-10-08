@@ -65,4 +65,9 @@ bool drawOverlay(){
     VK_CHECK(vkQueuePresentKHR(vkDev.graphicsQueue,&pi));
     VK_CHECK(vkDeviceWaitIdle(vkDev.device));
     return true;}
-
+    glm::vec3 cameraPos(0.0f,0.0f,0.0f);
+    glm::vec3 cameraAngles(-45.0f,0.0f,0.0f);
+    CameraPositioner_FirstPerson positioner_firstPerson(cameraPos,vec3(0.0f,0.0f,-1.0f),vec3(0.0f,1.0f,0.0f));
+    CameraPositioner_MoveTopositioner_moveTo(cameraPos,cameraAngles);
+    Camera camera = Camera(positioner_firstPerson);
+    positioner_firstPerson
