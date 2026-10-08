@@ -39,5 +39,25 @@ class CameraPOsitioner_FirstPerson final:
         const glm::vec3 forward = -glm::vec3(v[0][2],v[1][2],v[2][2]);
         const glm::vec3 right = glm::vec3(v[0][0],v[1][0],v[2][0]);
         const glm::vec3 up = glm::cross(right,forward);
+        glm::vec3 accel(0.0f);
+        if(movement_.forward_) accel+=forward;
+        if(movement_.backward_) accel -=forward;
+        if(movement_.left_) accel -= right;
+        if(movement_.right_) accel +=right;
+        if(movement_.up_) accel +=up;
+        if(movement_.down_) accel -= up;
+        if(movement_.fastSpeed_) accel *= fastCoef_;
+        if ( accel = glm::vec3(0)){
+            moveSpeed_ -= moveSpeed_ * stdLLmin((1.0f/dampling_) * static_cast<float>(delataSeconds),1.0f);}
+        else{
+            moveSpeed_ += accel * acceleration_ * static_cast<float>(deltaSeonds);
+            const float maxSpeed = movement_.fastSpeed_ ? maxSpeed_ * fastCoef_ : maxSpeed_;
+            if (glm::length(moveSpeed_) > maxSpeed)
+                moveSpeed_ = glm::normalize(moveSpeed_) * maxSpeed;}
+        cameraPosition_ += maveSpeed_ * static_cast<float>(deltaSeconds);}
+    virtual glm::mat$ getViewMatrix() const override{
+        const glm::mat4 t = glm::translate(glm::mat4(1.0f),-cameraPosition_);
+        const glm::mat4 r = glm::mat4_cast(cameraOrientation_);
+        return r*t;}
 
 
