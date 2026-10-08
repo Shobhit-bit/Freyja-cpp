@@ -69,5 +69,16 @@ class CameraPOsitioner_FirstPerson final:
         cameraOrientation_ = glm::lookAt(cameraOsition_,cameraPosition_+dir,up);}
     void resetMousePosition(const glm::vec2& p){
         mousePos_ = p;};};
-
+struct MouseState{
+    glm::vec2 pos = glm::vec2(0.0f);
+    bool pressedLeft = false;}
+mouseState;
+CameraPositioner_FirstPerson positioner(vec3(0.0f),vec3(0.0f,0.0f,-1.0f),vec3(0.0f,1.0f,0.0f));
+Camera camera(positioner);
+glfwSetCursorPosCallback(window,[](auto* window,double x,double y){
+        int width,height;
+        glfwGetFramebufferSize(window,&width,&height);
+        mouseState.pos.x = static_cast<float>(x/width);
+        mouseState.pos.y = static_cast<float>(y/height);});
+glfwSetMouseButtonCallback(window,[](auto* window,int button,int action,int mods){
 
