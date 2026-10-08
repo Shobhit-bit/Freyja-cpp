@@ -91,4 +91,29 @@ glfwSetMouseButtonCallback(window,[](auto* window,int button,int action,int mods
         if(key==GLFW_KEY_2) positioner.movement_.down_ = press;
         if (mods & GLFW_MOD_SHIFT) positioner.movement_.fastSpeed_=press;
         if(key==GLFW_KEY_SPACE) positioner.setUpVectore(vec3(0.0f,1.0f,0.0f));});
+positioner.upadate(deltaSeconds,mouseState.pos,mouseState.pressedLeft);
+const mat4 p =glm::perspective(45.0f,ratio,0.1f,1000.0f);
+const mat4 view=camera.getViewMatrix();
+const PerFrameData perFrameData = {.view=view,.proj=p,.cameraPos = glm::vec4(camera.getPosition(),1.0f)};
+glNamedBufferSubData(perFrameDataBuffer,0,kUniformBufferSize,&perFrameData);
+class FramesPerSecondCounter {
+    private:
+        const float avgIntervalSec_ = 0.5f;
+        unsigned int numFrames_ = 0;
+        double accumulatedTime_ =0;
+        float currentFPS_ =0.0f;
+    public:
+        explicit FramesPerSecondCounter(float avgIntervalSec = 0.5f) : avgIntervalSec_(avgInternalSec){assert(avgIntervalSec > 0.0f);}
+        bool tick(float deltaSeconds,bool frameRendered = true){
+            if(frameRendered) numFrames_++;
+            accumulatedTime_ += deltaSeconds;
+            if(accumulatedTime_ < avgIntervalSec_)
+                return false;
+            currentFPS_ = static_cast<float>(numFrames_/accumulatedTime_);
+            printf("FPS: %.1f\n" ,currentFPS_);
+            numFrames_ = 0;
+            accumulatedTime_ -0;
+            return true;}
+    inline float getFPS() const {return currentFPS_;}};
+
 
