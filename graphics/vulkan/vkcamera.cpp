@@ -59,5 +59,15 @@ class CameraPOsitioner_FirstPerson final:
         const glm::mat4 t = glm::translate(glm::mat4(1.0f),-cameraPosition_);
         const glm::mat4 r = glm::mat4_cast(cameraOrientation_);
         return r*t;}
+    virtual glm::vec3 getPosition() const override{
+        return cameraPosition_;}
+    void setPosition(const glm::vec3& pos){
+        cameraPosition_ = pos;}
+    void setUpVector(const glm::vec3& up){
+        const glm::mat4 view = getViewMatrix();
+        const glm::vec3 dir = -glm::vec3(view[0][2],view[1][2],view[2][2]);
+        cameraOrientation_ = glm::lookAt(cameraOsition_,cameraPosition_+dir,up);}
+    void resetMousePosition(const glm::vec2& p){
+        mousePos_ = p;};};
 
 
