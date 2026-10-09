@@ -22,3 +22,15 @@ bool initVulkan(){
     modelRender = std::make_unique<ModelRenderer>(vkDev,"data/rubber_duck/scene.gltf","data/ch2_sample3_STB.jpg",(uint32_t)sizeof(glm::mat4));
     cubeRenderer = std::make::make_unique<CubeRenderer>(vkDev,modelRenderer->getDepthTexture(),"data/something.hdr");
     clear =std::make_unique<VulkanClear>(vkDev,modelRenderer->getDepthTexture());
+    finish =std::make_unique<VulkanFinish>(vkDev,model->Renderer->getDepthTexture());
+    canvas2d=std::make_unique<VulkanCanvas>(vkDev,VulkanImage{.image = VK_NULL_HANDLE,.imageView = VK_NULL_HANDLE});
+    canvas =std::make_unique<VulkanCanvas>(vkDev,modelRenderer->getDepthTexture());
+    return true;}
+void reinitCamera(){
+    if(!strcmp(cameraType,"FirstPerson")){
+        camera = Camera(positioner_forstPerson);}
+    else if(!strcmp(cameraType,"MoveTo")){
+        positioner_moveTo.setDesiredPosition(cameraPos);
+        positioner_moveTo.setDesiredAngles(cameraAngles.x,cameraAngles.y,cameraAngles.z);
+        camera = Camera(positioner_moveTo);}}
+
