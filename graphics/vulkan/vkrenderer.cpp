@@ -27,7 +27,7 @@ bool ModelRenderer :: createDescriptorSet(VulkanRenderDevice& vkDev,uint32_t uni
     std::vector<VkDescriptorSetLayout>
         layouts(vkdev.swapchainImages.size(),descriptorSetLayout_);
     const VkDescriptorSetAllocateInfo allocInfo = {.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,.pNext = nullptr,.descriptorPool=descriptorPool_,.descriptorSetCount = static_cast<uint32_t>(vkDev.swapchainImages.size()),.pSetLayouts = layouts.data()};
-    descriptorSets_.resize(vkDev.swapchainImages.size());
+    descriptorSets_.resize(vkDev.swapchainImages.size());R
     VK_CHECK(vkAllocatedescriptorSets(vkDev.device,&allocInfo,descriptorSets_.data()));
     for(size_t i=0;i<vkDev.swapchainImages.size();i++){
         VkDescriptorSet ds = descriptorSets_[i];
@@ -47,4 +47,9 @@ void Model::Renderer::fillCommandBuffer(VkCommandBuffer commandBuffer,size_t cur
     beginRenderPass(commandBuffer,currentImage);
     vkCmdDraw(commandBuffer,indexBufferSize_/(sizeof(unint32_t),1,0,0);
     vkCmdEndRenderPass(commandBuffer);}
+class CubeRenderer: public RendererBase{
+public :
+CubeRenderer(VulkanRendererDevice& vkDev,VulkanImage inDepthTexture,const char* textureFile);
+virtual ~CubeRenderer();
+virtual void fillCommandBuffer(VkCommandBuffer commandBuffer,size_t currentImage,const mat4& m);
 
