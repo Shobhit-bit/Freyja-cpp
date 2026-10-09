@@ -158,4 +158,30 @@ void ImGuiRenderer::updateBuffers(VulkanRendererDevice& vkDev,uint32_t currentIm
         for(int j=0;j<cmdList->IdxBuffer.Size;j++)
             *idx++ = (uint32_t)*src++;}
     VkUnmapMemory(vkDev.device,storageBufferMemory_[currentImage]);}
+class LinearGraph{
+    std::deque<float> graphs_;
+    const size_t maxPoints_;
+public:
+    expicit LinearGraph(size_t maxGraphPoints = 256) : maxPoints_(maxGraphPoints){}
+    voi addPoint(float value){
+        graph_.push_back(value);
+        if(graph_.size() > maxPoints_)
+            graph_.pop_front();}
+    void renderGraph(VulkanCanvas& c,const glm::vec4& color = vec4(1.0)) const{
+        float minfps = std::numeric_limits<float>::max();
+        float maxfps = std::numeric_limits<float>::min();
+        for(float f: graph_){
+            if(f<minfps) minfps =f;
+            if(f>maxfps) maxfps = f;}
+        const float range = maxfps - minfps;
+        float x=0.0;
+        vec3 p1 = vec3(0,0,0);
+        const float scallingFactor = 0.15f;
+        for(float f:graphs_){
+            const float val = (f-minfps) / range;
+            const vec3 p2=vec3(x,val*scalingFactor,0);
+            x+=1.0f/maxPoints_;
+            c.line(p1,p2,color);
+            p1=p2;}}};
 
+            
