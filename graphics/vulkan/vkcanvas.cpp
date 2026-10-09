@@ -185,6 +185,12 @@ public:
             p1=p2;}}};
     if(fpsCounter.tick(deltaSeconds,frameRendered))
         fpsGraph.addPoint(fpsCounter.getFPS());
-        sineGraph.addpint((float)sin(glfwGetTime() * 10));
+        sineGraph.addPoint((float)sin(glfwGetTime() * 10));
+    void update2D(uint32_t imageIndex){
+        canvas2D->clear();
+        sineGraph.renderGraph(*canvas2d.get(),vec4(0.0f,1.0f,0.0f,1.0f));
+        fpsGraph.renderGraph(*anvas2d.get(),vec4(1.0f,0.0f,0.0f,1.0f));
+        canvas2d->updateBuffer(vkDev.imageIndex);}
+
 
             
