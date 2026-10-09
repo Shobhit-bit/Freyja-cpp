@@ -51,5 +51,21 @@ class CubeRenderer: public RendererBase{
 public :
 CubeRenderer(VulkanRendererDevice& vkDev,VulkanImage inDepthTexture,const char* textureFile);
 virtual ~CubeRenderer();
-virtual void fillCommandBuffer(VkCommandBuffer commandBuffer,size_t currentImage,const mat4& m);
+virtual void fillCommandBuffer(VkCommandBuffer commandBuffer,size_t currentImage)override;
+void updateUniformBuffer(VulkanrenderDevice& vkDev,uint32_t currentImage,const mat4& m);
+private:
+    VkSampler texturSampler;
+    VulkanImage texture;
+    bool createDescriptorSet(VulkanRenderDevice& vkDev);};
+CubeRenderer::CubeRenderer(VulkanRenderDevice& vkDev,VulkanIMage inDepthTexture,const char* textureFile) : RenderBase(vkDev,inDeothTexture){
+    createCubeTextureImage(vkDev textureFile,texture.image,texture.imageMemory);
+    createImageView(vkDev.device,texture.image,VK_FORMAT_R32B32G32A32_SFLOAT,VK_IMAGE_VIEW_TYPE_CUBE,6);
+    createTextureSampler(vkDev.device,&textureSampler);
+    if(!createColorAndDepthRenderPass(vkDev,true,&renderPass_,RenderPassCreateInfo()) || !createUniformBuffers(vkDev,sizeof(mat4)) || !createColorAndDepthFrameBufferbuffers(vkDev,renderPass_,depthTexture_.imageView,swapchainFramebuffers_) || !createDescriptorPool(vkDev,1,0,1,&descriptorPool_) || createDescriptorSet(vkDev) || !createPipelineLayout(vkDev.device,descriptorSetLayout_,&pipelineLayout_) || !createGraphicsPipeline(vkDev,renderPass_,pipelineLayout_,{"data/shaders/chapter04/VkCube.vert","data/shaders/VKCube.frag"},&graphicsPipeline_)){
+    printf("CubeRenderer : failed to create pipeline\n");
+    exit(EXIT_FAILURE);}}
+void CubeRenderer::updateUniformBuffer(VulkanRenderDevice& vkDev,uint32_t currentImg,const mat4& m){
+    uploadBufferData(vkDev,uniformBuffersMemory_[currentImg],0,glm::value_ptr(m),sizeof(mat4));}
+void CubeRenderer
+
 
