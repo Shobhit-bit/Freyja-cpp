@@ -66,6 +66,13 @@ CubeRenderer::CubeRenderer(VulkanRenderDevice& vkDev,VulkanIMage inDepthTexture,
     exit(EXIT_FAILURE);}}
 void CubeRenderer::updateUniformBuffer(VulkanRenderDevice& vkDev,uint32_t currentImg,const mat4& m){
     uploadBufferData(vkDev,uniformBuffersMemory_[currentImg],0,glm::value_ptr(m),sizeof(mat4));}
-void CubeRenderer
+void CubeRenderer::fillCommandBuffer(VkCommandBuffer commandBuffer,size_t currentImage){
+    beginRenderPass(commandBuffer,currentImage);
+    vkCmdDraw(commandBuffer,36,1,0,0);
+    vkCmdEndRenderPass(commandBuffer);}
+bool CubeRenderer:: createDescriptorSet(VulkanRenderDevice& vkDev){
+    const std::array<VkDescriptorSetLayoutBinding,2> bindings = {
+        descriptorSetLayoutBinding(0,VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,VK_SHADER_STAFE_VERTEX_BIT),descriptorSetLayoutBinding(1,VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,VK_SHADER_STAGE_FRAGMENT_BIT)};
+
 
 
