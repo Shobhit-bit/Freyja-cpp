@@ -183,5 +183,8 @@ public:
             x+=1.0f/maxPoints_;
             c.line(p1,p2,color);
             p1=p2;}}};
+    if(fpsCounter.tick(deltaSeconds,frameRendered))
+        fpsGraph.addPoint(fpsCounter.getFPS());
+        sineGraph.addpint((float)sin(glfwGetTime() * 10));
 
             
