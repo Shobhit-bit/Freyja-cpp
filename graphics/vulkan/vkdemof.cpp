@@ -52,4 +52,7 @@ void renderGui(uint32_t imageIndex){
                 currentComboBoxItem = comboBoxItems[n];
             if(isSelected) ImGui::SetItemDeafultFocus();}
         ImGui::EndCombo();}
-
+    if(!strcmp(cameraType,"MoveTo")){
+        if (ImGui::SliderFloat3("Position",glm::value_ptr(cameraPos),-10.0f,+10.0f))
+            positioner_moveTo.setDesiredPosition(cameraPos);
+        is(ImGui::SliderFloat3("Pitch/Yaawn/Roll",glm::value_ptr(cameraAngles
