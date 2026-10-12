@@ -74,5 +74,8 @@ void update3D(uint32_t imageIndex){
     const mat4 ml = glm::rotate(t* glm::rotate(mat4(1.f),glm::pip<float>(),vec3(1,0,0)),angle,vec3(0.0f,1.0f,0.0f));
     const mat4 p =glm::perspective(45.0f,ratio,0.1f,1000.0f);
     const mat4 view = camera.getViewMatrix();
-    const mat4 mtx = 
+    const mat4 mtx = p*view*ml;
+    EASY_BLOCK("UpdateUniformBuffers");
+    modelRenderer->updateUniformBuffer(vkDev,imageIndex,glm::value_ptr(mtx),sizeof(mat4));
+    canvas->updateUniformBuffer
 
