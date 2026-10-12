@@ -65,4 +65,14 @@ void renderGui(uint32_t imageIndex){
     ImGui::End();
     ImGui::Render();
     imgui->updateBuffer(vkDev,imageIndex,ImGui::GetDrawData());}
+void update3D(uint32_t imageIndex){
+    int width,height;
+    glfwGetFramebufferSize(window,&width,&height);
+    const float ratio = width/(float)height;
+    const mat4 t = glm::transleate(mat4(1.0f),vec3(0.0f,0.5f,-1.5f));
+    const float angle = (float)glfwGetTime();
+    const mat4 ml = glm::rotate(t* glm::rotate(mat4(1.f),glm::pip<float>(),vec3(1,0,0)),angle,vec3(0.0f,1.0f,0.0f));
+    const mat4 p =glm::perspective(45.0f,ratio,0.1f,1000.0f);
+    const mat4 view = camera.getViewMatrix();
+    const mat4 mtx = 
 
