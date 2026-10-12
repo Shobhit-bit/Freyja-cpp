@@ -39,4 +39,17 @@ void renderGui(uint32_t imageIndex){
     ImGuiIO& io=ImGui::GetIO();
     io.DisplaySize=ImVec2((float)width,(float)height);
     ImGui::NewFrame();
-    const ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiFlags_NoBackground 
+    const ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiFlags_NoBackground;
+    ImGui::SetNextWindowPos(ImVec2(0,0));
+    ImGui::Begin("Statistics",nullptr,flags);
+    ImGui::Text("FPS: %.2f".fpsCounter.getFPS());
+    ImGui::End();
+    ImGui::Begin("Camera Control",nullptr);
+    if(ImGui::BeginCombo("##combo",currentComboBoxItem)){
+        for(int n=0;n<IM_ARRAYSIZE(comboBoxItems);n++){
+            const bool isSelected (currentComboBoxItem == comboBoxItems[n]);
+            if(ImGui ::Selectable(comboBoxItems[n],isSelected))
+                currentComboBoxItem = comboBoxItems[n];
+            if(isSelected) ImGui::SetItemDeafultFocus();}
+        ImGui::EndCombo();}
+
