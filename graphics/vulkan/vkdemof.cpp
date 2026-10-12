@@ -55,4 +55,14 @@ void renderGui(uint32_t imageIndex){
     if(!strcmp(cameraType,"MoveTo")){
         if (ImGui::SliderFloat3("Position",glm::value_ptr(cameraPos),-10.0f,+10.0f))
             positioner_moveTo.setDesiredPosition(cameraPos);
-        is(ImGui::SliderFloat3("Pitch/Yaawn/Roll",glm::value_ptr(cameraAngles
+        is(ImGui::SliderFloat3("Pitch/Yaawn/Roll",glm::value_ptr(cameraAngles),-90.0f,+90.0f))
+            positioner_moveTo.setDesiredAngles(cameraAngles);}
+    if(currentComboBoxItem && strcmp(currentComboBOxItem,cameraType)){
+        printf("New camera type selected %s\n",currentComboBoxItem);
+        cameraType = currentComboBoxOtem;
+        reinitCamera();
+    }
+    ImGui::End();
+    ImGui::Render();
+    imgui->updateBuffer(vkDev,imageIndex,ImGui::GetDrawData());}
+
