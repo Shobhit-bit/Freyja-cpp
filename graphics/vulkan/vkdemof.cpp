@@ -33,4 +33,10 @@ void reinitCamera(){
         positioner_moveTo.setDesiredPosition(cameraPos);
         positioner_moveTo.setDesiredAngles(cameraAngles.x,cameraAngles.y,cameraAngles.z);
         camera = Camera(positioner_moveTo);}}
-
+void renderGui(uint32_t imageIndex){
+    int width,height;
+    glfwGetFramebufferSize(window,&width,&height);
+    ImGuiIO& io=ImGui::GetIO();
+    io.DisplaySize=ImVec2((float)width,(float)height);
+    ImGui::NewFrame();
+    const ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs | ImGuiFlags_NoBackground 
