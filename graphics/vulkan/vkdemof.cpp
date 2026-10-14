@@ -77,5 +77,14 @@ void update3D(uint32_t imageIndex){
     const mat4 mtx = p*view*ml;
     EASY_BLOCK("UpdateUniformBuffers");
     modelRenderer->updateUniformBuffer(vkDev,imageIndex,glm::value_ptr(mtx),sizeof(mat4));
-    canvas->updateUniformBuffer
+    canvas->updateUniformBuffer(vkDev,p*view,0.0f,imageIndex);
+    canvas2D->updateUniformBuffer(vkDev,glm::ortho(0,1,1,0),0.0f,imageIndex);
+    cubeRenderer->updateUniformBuffer(vkDev,imageIndex,p*view*ml);
+    EASY_AND_BLOCK;}
+void update2D(uint32_t imageIndex){
+    canvas2D->clear();
+    sineGraph.renderGraph(*canvas2d.get(),vec4(0.f,1.f,0.f,1.f));
+    fpsGraph.renderGraph(*canvas2d.get());
+    canvas2d->updateBuffer(vkDev,imageIndex);}
 
+    
