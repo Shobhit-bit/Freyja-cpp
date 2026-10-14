@@ -97,5 +97,27 @@ void composeFrame(uint32_t imageIndex,const std::vector<RendererBase*>& renderer
     for(auto& r:renderers) r->fillCommandBuffer(commandBuffer,imageINdex);
     VK_CHECK(vkEndCommandBuffer(commandBuffer));
     EASY_END_BLOCK;}
+bool drawFrame(const std::vector<RenderBase*>&renderers){
+    EASY_FUNCTION();
+    uint32_t imageIndex =0;
+    VkResult result = vkAcquireNextImageKHR(VkDev.device,vkDev.swapchin,0,vkDev.semaphore,VK_NULL_HANDLE,&imageIndex);
+    VK_CHECK(vkResetCommandPool(vkDev.device,vkDev.commandPool,0));
+    if(result != VK_SUCCESS) return false;
+    composeFrame(imageIndex,renderers);
+    const VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    const VkSubmitInfo si ={.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,.pNext = nullptr,.waitSemaphoreCount =1,.pWaitSeamphores = &vkDev.semaphore,.pWaitDstStageMask = waitPages,.commandBufferCount = 1,.pCommandBuffers = &vkDev.commandBuffers[imageIndex],.signalSemaphoreCount=1,.pSignalSemaphores = &vkDev.renderSemaphore};
+    EASY_BLOCK("vkQueueSubmit",profiler::colors::Magenta);
+    VK_CHECK(vkQueueSubmit(vkdev.graphicsQueue,1,&si,nullptr));
+    EASY_END_BLOCK;
+    const VkPresentINfoKHE pi = {.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,.pNext = nullptr , .waitSemaphoreCount =1,.pWaitSemaphore = &vkDev.renderSemaphore,.swapchainCount = 1,.pSwapchains = &vkDev.swapchain,.pImageIndicies = &imageIndex};
+    EASY_BLOCK("vkQueuePresentKHR",profiler::colors::Magenta);
+    VK_CHECK(vkQueuePresentKHR(vkDev.graphicsQueue,&pi));
+    EASY_END_BLOCK;
+    EASY_BLOCK("vkDevicewaitIdle",profiler::colors::Red);
+    VK_CHECK(vkDeviceWaitIdle(vkDev.device));
+    EASY_END_BLOCK;
+    return true;}
+const std::vector<RendererBase*> renderers = {clear.get(),cubeRenderer.get(),modelRenderer.get(),canvas.get(),canvas2d.get(),imgui.get(),finish.get()};
+
 
     
