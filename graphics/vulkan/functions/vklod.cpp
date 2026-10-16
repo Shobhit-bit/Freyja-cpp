@@ -126,4 +126,47 @@ class MultiMeshRenderer: public RendererBase{
                 .instanceCount = 1;
             .firstVertex = static cast<uint32_t>(meshes[j].streamOffset[0]/meshes[j].streamElementsSize[0]),.firstInstance =i};}
         vkUnmapMemory(vkDev.device,indirectBuffersMemory_[currentImages]);}
-
+    virtual void fillCommandBuffer(VkCommandBufer commandBuffer,size_t currentImage) override{
+        beginRenderPass(commandBuffer,currentImage);
+        vkCmdDrawIndorect(commandBuffer,indirectBuffers_[currentImage],0,maxInstances_,sizeof(VkDrawIndorectCommand));
+        vkCmdEndRenderPass(commandBuffer);}
+    virtual ~MultiMeshRenderer(){
+        VkDevice device = vkDev.device;
+        vkDestroyBuffer(device,storageBuffer_,nullptr);
+        vkFreeMemory(device,storageBuffer_,nullptr);
+        for(size_t i=0;i<swapchainFramebuffers_.size();i++){
+            vkDestroyBuffer(device,instanceBuffers_[i],nullptr);
+            vkFreeMemory(device,instanceBufferMemory_[i],nullptr);
+            vkDestroyBuffer(device,indirectBuffers_[i],nullptr);
+            vkFreeMemory(device,indirectBuffersMemory_[i],nullptr);}
+        vkDestroyBuffer(device,materialBuffer_,nullptr);
+        vkFreeMemory(device,materialBufferMemory_,nullptr);
+        destroyVulkanImage(device,depthTexture_);
+    }
+    void MultiMeshRenderer::loadInstanceData(const char* instanceFile){
+        FILE* f =fopen(instanceFile,"rb");
+        fseek(f,0,SEEK_END);
+        size_t fsize=ftell(f);
+        fseek(f,0,SEEK_SET);
+        maxInstances_ = static_cast<uint32_t>{fsize/sizeof(InstanceData));
+        instances.resize(maxInstances_);
+    if(fread(instances.data(),sizeof(InstanceData),maxInstances_,f) != maxInstances_){
+        printf("Unable to read mesh file header\n");
+        exit(255);}
+    meshes.resize(header.meshCount);
+    if(fread(meshes.data(),sizeof(Mesh),header.meshCount,f) != header.meshCount){
+        printf("Could not read mesh descriptor\n");
+        exit(255);}
+    indexData.resize(header.indexDataSize / sizeof(uint32_t));
+    vertexData.resize(header.vertexDataSize/sizeof(float));
+    if((fread(indexData.data(),1,header.indexDataSize,f) != header.indexDataSize) || (fread(vertexData.data(),1,header.vertexDataSize,f) != header.vertexDataSize)){
+        printf("Unable to read index/vertex data \n");
+        exit(255);}
+    fclose(f);
+    return header;
+}
+MultiMeshRenderer::MultiMeshRenderer(VulkanRenderDevice& vkDev,const char* meshFile,const char* instanceFile,const char* materialFile,const char* vtxShaderFile,const char* fragShaderFile) : vkDev(vkDev),RendererBase(vkDev,VulkanImage()){
+    if (!createColorAndDepthRenderPass(vkDev,false,&renderPass_,RenderPassCreateInfo())){
+        printf("Failed to create render pass\n");
+        exit(EXIT_FAILURE);}
+    framebufferWidth
