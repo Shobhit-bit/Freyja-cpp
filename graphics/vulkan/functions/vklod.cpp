@@ -90,4 +90,40 @@ int main(int argc,char** argv){
     saveMeshesToFile(f);
     fclose(f);
     return 0;}
+class MultiMeshRenderer: public RendererBase{
+    public:
+        MultiMeshRenderer(VulkanRenderDevice& vkDev,const char* meshFile,const char* instanceFile,const char* materialFile,const shar* vtxShaderFile,const char* fragShaderFile);
+    private:
+        std::vector<InstanceData> instances;
+        std::vector<Mesh> meshes;
+        std::vector<uint32_t> indexData;
+        std::vector<float> vertexData;
+        VulkanRenderDevice& vkDev;
+        VkBuffer storageBuffer_;
+        VkDeviceMemory storageBufferMemory;
+        uint32_t maxVertexBufferSize_,maxIndexBufferSize_;
+        uint32_t maxInstances_;
+        uint32_t maxInstancesSize_,maxMaterialSize_;
+    VkBuffer materialBuffer_;
+    VkDeviceMemory materialBufferMemory_;
+    std::vector<VkBuffer> indirectBuffers_;
+    std::vector<VkDeviceMemory> indorectBuffersMemory_;
+    std::vector<VkBuffer> instanceBuffers_;
+    std::vector <VkDeviceMemory> instanceBufferMemory_;
+    bool createDescriptorSet(VulkanRenderDevice& vkDev);
+    void updateUniformBuffer(VulkanRenderDevice& vkDev,size_t currentImage,const mat4&m);{
+        uploadBufferData(vkDev,uniformBufferMemory_[currentImage],0,glm::value_ptr(m),sizeof(mat4));
+    void updateGeometryBuffers(VulkanRenderDevice& vkDev,uint32_t vertexCount,uint32_t indexCount,const void* vertices,const void* indicies){
+        uploadBufferData(vkDev,storageBufferMemory_,0,vertices,vertexCount);
+        uploadBufferData(vkDev,storageBufferMemory_,maxVertexBufferSize_,indices,indexCount);}
+    void updateIndirectBuffers(VulkanRenderDevice& vkDev,size_t currentImage){
+        VkDrawIndirectCommand* data = nullptr;
+        vkMapMemory(vkDev.device,indorectBufferMemory_[currentImage],0,2*sizeof(VkDrawIndirectCommand),0,(void **) &data);
+        for(uint32_t i=0;i<maxInstances_;i++){
+            const uint32_t j=instances[i].meshIndex;
+            data[i] = {.vertexCount = static_cast<uint32_t>
+            (meshes[j].lodSize(instances[i].LOD)/sizeof(uint32_t)),
+                .instanceCount = 1;
+            .firstVertex = static cast<uint32_t>(meshes[j].streamOffset[0]/meshes[j].streamElementsSize[0]),.firstInstance =i};}
+        vkUnmapMemory(vkDev.device,indirectBuffersMemory_[currentImages]);}
 
