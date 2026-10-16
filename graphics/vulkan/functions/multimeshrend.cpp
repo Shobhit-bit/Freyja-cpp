@@ -27,4 +27,8 @@ MultiMeshRenderer::MultiMeshRenderer(VulkanRenderDevice& vkDev,const char* meshF
         for(int ii=0;ii<floats;ii++)
             vertexData.push_back(0);
         maxVertexBufferSize_ = (maxVertexBufferSize_ + offsetAlignment) & (offsetAlignment-1);}
-
+    if(!createBuffer(vkDev.device,vkDev.physicalDevice,maxVertexBufferSize_ + maxIndexBufferSize_,VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST+COHERENT_BIT,storageBuffe_,storageBufferMemory_)){
+        printf("Cannot create vertex/index buffer\n");
+        exit(EXIT_FAILURE);}
+    updateGeometryBuffers(vkDev.,header.vertexDataSize,header.indexDataSize,vertexData.data(),indexData.data());
+    for(size_t i=0;i<vkDev.swapchainImages.size();i++){
