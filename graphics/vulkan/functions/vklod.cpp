@@ -169,4 +169,20 @@ MultiMeshRenderer::MultiMeshRenderer(VulkanRenderDevice& vkDev,const char* meshF
     if (!createColorAndDepthRenderPass(vkDev,false,&renderPass_,RenderPassCreateInfo())){
         printf("Failed to create render pass\n");
         exit(EXIT_FAILURE);}
-    framebufferWidth
+    framebufferWidth_ = vkDev.framebufferWidth;
+    framebufferHeight_ = vkDev.framebufferHeight;
+    createDepthResources(vkDev,framebufferWidth_,framebufferHeight_,depthTexture_);
+    loadInstanceData(instanceFile);
+    MeshFileHeader header = loadMesh(meshFile);
+    const uint32_t indirectDataSize = maxInstances_ * sizeof(VkDrawIndirectCommand);
+    maxInstanceSize_ = maxInstances_ * sizeof(InstanceData);
+    maxMaterialSize_ = 1024;
+    instanceBuffers_.resize(vkDev,swapchainImages.size());
+    instanceBuffersMemory_.resize(vkDev.swapchainImages.size());
+    indirectBuffers_.resize(vkDev.swapchainImages.size());
+    indirectBuffersMemory_.resize(vkDev.swapchainImages.size());
+    if(!createBuffer(vkDev.device,vkDev.physicalDevice,materialDataSize,VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,materialBuffer_,materialBufferMemory_)){
+        printf("Cannot create material buffer\n");
+        exit(EXIT_FAILURE);}
+    maxVertexBufferSize_ = header.vertexDataSize;
+    maxIndexBufferSize_ = header.indexDataSize;
