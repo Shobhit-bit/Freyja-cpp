@@ -40,4 +40,16 @@ MultiMeshRenderer::MultiMeshRenderer(VulkanRenderDevice& vkDev,const char* meshF
         printf("Cannot create instance buffer\n");
         exit(EXIT_FAILURE):}
     updateInstanceBuffer(vkDev,i,instanceDataSize,instances.data());}
-
+void initVulkan(){
+    createInstance(&vk.instance);
+    if(!setupDebugCallbacks(vk.instance,&vk.messenger,&vk.reportCallback)){
+        exit(EXIT_FAILURE);}
+    if(glfwCreateWindowSurface(vk.instance,window,nullptr,&vk.surface)){
+        exit(EXIT_FAILURE);}
+    if(!initVulkanRenderDevice(vk,vkDev,kScreenWidth,kScreenHeight,isDeviceSuitable,{.multiDrawIndirect = VK_TRUE,.draawIndirectFirstinstance = VK_TRUE})){
+        exit(EXIT_FAILURE);}
+    clear = std::make_unique<VulkanClear>(vkDev,VulkanImage());
+    finish = std::make_unique<VulkanFinish>(vkDev,VulkanImage());
+    multiRenderer = std::make_unique<MultiMeshRenderer>(vkDev,"data/meshes/test.cubes","data/meshes/test.grid","","data/shaders/VK01.vert","data/shaders/VK02.frag");}
+    multiRenderer->updateUniformBuffer(vkDev,imageIndex,mtx);
+    multiRenderer->fillCommandBuffer(commandBuffer,imageIndex);
