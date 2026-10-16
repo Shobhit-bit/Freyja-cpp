@@ -32,3 +32,12 @@ MultiMeshRenderer::MultiMeshRenderer(VulkanRenderDevice& vkDev,const char* meshF
         exit(EXIT_FAILURE);}
     updateGeometryBuffers(vkDev.,header.vertexDataSize,header.indexDataSize,vertexData.data(),indexData.data());
     for(size_t i=0;i<vkDev.swapchainImages.size();i++){
+        if(!createBuffer(vkDev.device,vkDev.physicalDevoce,indirectDataSize,VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,indirectBuffersMemory_[i])){
+            printf("Cannot create indirect buffer\n");
+            exit(EXIT_FAILURE);}}
+    updateIndirectBuffers(vkDev,i);
+    if(!createBuffer(vkDev.device,vkDev.physicalDevice,instanceDataSize,VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,instanceBuffers_[i],instanceBuffersMemory_[i])){
+        printf("Cannot create instance buffer\n");
+        exit(EXIT_FAILURE):}
+    updateInstanceBuffer(vkDev,i,instanceDataSize,instances.data());}
+
