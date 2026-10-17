@@ -17,4 +17,8 @@ private:
     uint32_t numIndices_;
     GLBuffer bufferIndices_;
     GLBuffer bufferVertices_;};
+FILE* f = fopen("data/meshes/test.meshes","rb");
+if(!f){
+    printf("Unable to open mesh file\n");
+    exit(255);}
 
