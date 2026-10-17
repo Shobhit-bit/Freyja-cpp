@@ -42,4 +42,28 @@ if ((fread(indexData.data(),1,idxDataSize,f) != idxDataSize) || (fread(vertexDat
     exit(255);}
 fclose(f);
 GLMesh mesh(indexData.data(),idxDataSize,vertexData.data(),vtxDataSize);
+GLShader shdGridVertex("data/shaders/GL01_grid.vert");
+GlShader shdGridFragment("data/shaders/GL01_grid.frag");
+GLProgram progGrid(shdGridVertex,shdGridFragment);
+GLShader shaderVertex("data/shader/GL03_mesh_inst.vert");
+GLShader shaderGeometry("data/shader/GL03_mesh_inst.geom");
+GLShader shaderFragment("data/shader/GL03_mesh_inst.frag");
+GLProgram program(shaderVertex,shaderGeometry,shaderFragment);
+const mat4 m(1.0f);
+GLBuffer modeMatrices(sizeof(mat4),value_ptr(m),GL_DYNAMIC_STORAGE_BIT);
+glBindBufferBase(GL_SHADER_STORAGE_BUFFER,2,modeMatrices.getHandle());
+layout(std430,binding=2) restrict readonly buffer 
+Matrices{
+    mat4 in_Model[];}
+glClearColor(1.0f,1.0f,1.0f,1.0f);
+glEnable(GL_BLEND);
+glBlendFunc(GL_SRC_ALPHA<GL_ONE_MINUS_SRC_ALPHA);
+glEnable(GL_DEPTH_TEST);
+glDisable(GL_BLEND);
+program.useProgram();
+mesh.draw();
+glDisable(GL_DEPTH_TEST);
+glEnable(GL_BLEND);
+progGrid.useProg();
+glDrawArraysInstanceBaseInstance(GL_TRIANGLES,0,6,1,0);
 
