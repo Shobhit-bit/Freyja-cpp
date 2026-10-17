@@ -21,4 +21,25 @@ FILE* f = fopen("data/meshes/test.meshes","rb");
 if(!f){
     printf("Unable to open mesh file\n");
     exit(255);}
+MeshFileHeader header;
+if(fread(&header,1,sizeof(header),f) != sizeof(header)){
+    printf("Unable to read mesh file header\n");
+    exit(255);}
+std::vector<Mesh> meshes1;
+const auto meshCount = header.meshCount;
+meshes1.resize(meshCount);
+if(fread(meshes1.data(),sizeof(Mesh),meshCount,f) != meshCount){
+    printf("Could not read meshes\n");
+    exit(255);}
+std::vector<uint32_t> indexData;
+std::vector<float> vertexData;
+count auto idxDataSize = header.indexDataSize;
+const auto vtxDataSize = header.vertexDataSize;
+indexData.resize(idxDataSize/sizeof(uint32_t));
+vertexData.resize(vtxDataSize/sizeof(float));
+if ((fread(indexData.data(),1,idxDataSize,f) != idxDataSize) || (fread(vertexData>data(),1,vtxDataSize,f) != vtxDataSize)){
+    printf("Unable to read index/vertex data\n");
+    exit(255);}
+fclose(f);
+GLMesh mesh(indexData.data(),idxDataSize,vertexData.data(),vtxDataSize);
 
