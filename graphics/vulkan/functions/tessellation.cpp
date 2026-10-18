@@ -117,5 +117,9 @@ void main(){
     out_FragColor = mix(color*vec4(0.8),color,edgeFactor(1.0));};
 GLShader shaderVertex("data/shaders/GL02_duck.vert");
 GLShader shaderTessControl("data/shaders/GL02_duck.tesc");
+GLShader shaderTessEval("data/shaders/GL02_duck.tese");
+GLShader shaderGeometry("data/shaders/GL02_duck.geom");
+GLShader shaderFragment("data/shaders/GL02_duck.frag");
+GLProgram program(shaderVertex,shaderTessControl,shaderTessEval,shaderGeometry ,shaderFragment);
 
 
