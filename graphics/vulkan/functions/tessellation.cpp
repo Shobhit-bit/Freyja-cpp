@@ -121,5 +121,11 @@ GLShader shaderTessEval("data/shaders/GL02_duck.tese");
 GLShader shaderGeometry("data/shaders/GL02_duck.geom");
 GLShader shaderFragment("data/shaders/GL02_duck.frag");
 GLProgram program(shaderVertex,shaderTessControl,shaderTessEval,shaderGeometry ,shaderFragment);
+ImGuiGLRenderer rendererUI;
+io.DisplaySize = ImVec2((float)width,(float)height);
+ImGui::NewFrame();
+ImGui::SliderFloat("Tessellation scale",&tessellationScale,1.0f,2.0f,"%.1f");
+ImGui::Render();
+rendererUI.render(width,height,ImGui::GetDrawData());
 
 
