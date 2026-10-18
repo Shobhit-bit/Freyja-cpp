@@ -35,4 +35,11 @@ bool drawFrame(VulkanRenderDevice& vkDev,const std::function<void(uint32_t)>& up
     VK_CHECK(vkBeginCommandBuffer(commandBuffer,&bi));
     composeFrameFunc(commandBuffer,imageINdex);
     VK_CHECK(vkEndCommandBuffer(commandBuffer));
-    
+   const VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+   const VkSubmitInfo si = {.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,.pNext = nullptr,.waitSemaphoreCount =1,.pWaitSeamphores = &vkDev.semaphore,.pWaitDstStageMask = waitStages,.commandBufferCount = 1,.pCommandBuffers = &vkDev.commandBuffers[imageIndex],.signalSemaphoreCount = 1,.pSignalSeamphores = &vkDev.renderSemaphore};
+   VK_CHECK(vkQueueSubmit(vkDev.graphicsQueue,1,&si,nullptr));
+   const VkPresentInfoKHR pi = {.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,.pNext = nullptr,.waitSemaphoreCount = 1,.pWaitSeamphores = &vkDev.renderSeamphore,.swapchainCount = 1,.pSwapchains = &vkDev.swapchain,.pImageIndices = &imageIndex};
+   VK_CHECK(vkQueuePresentKHR(vkDev.graphicsQueue,&pi));
+   VK_CHECK(vkDeviceWaitIdle(vkDev.device));
+   return true;}
+
