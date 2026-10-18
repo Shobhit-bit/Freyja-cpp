@@ -41,5 +41,22 @@ void main(){
     gl_Postion = MVP * vec4(pos,1.0);
     uv_in = getTexCoord(gl_VertexID);
     worldPos_in = (in_Model[gl_DrawID] * vec4(pos,1.0)).xyz;}
+#version 460 core
+layout(vertices =3) out;
+layout(location =0) in vec2 uv_in[];
+layout(location =1) in vec3 worldPos_in[];
+layout(std140,binding=0) uniform PerFrameData{
+    mat4 view;
+    mat4 proj;
+    vec4 cameraPos;
+    float tessettationScale;};
+in gl_PerVertex{
+    vec4 gl_Postion;}
+gl_in[];
+out gl_PerVertex{
+    vec4 gl_Positon;}gl_out[];
+struct vertex{
+    vec2 uv;};
+layout(location=0) out vertex Out[];
 
 
