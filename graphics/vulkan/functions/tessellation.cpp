@@ -84,5 +84,38 @@ struct vertex{
     vec2 uv;};
 in gl_PerVertex{
     vec4 gl_Position;};
+layout(location=0) out vec2 uv;
+vec2 interpolate2(in vec2 v0,in vec2 v1,in vec2 v2){
+    return v0 * gl_TessCoord.x + v1 * gl_TessCoord.y + v2 * gl_TessCoord.z;}
+void main(){
+    gl_Position = interpolate4(gl_in[0].gl_Position,gl_in[1].gl_Position,gl_in[2].gl_Position);
+    uv = interpolate2(In[0].uv,In[1].uv,IN[2].uv);};
+#version 460 core 
+layout(traininges) in;
+layout(triangle_strip,max_vertices = 3) out;
+layout(location=0) in vec2 uv[];
+layout(location=0) out vec2 uvs;
+layout(location=1) out vec3 barycoords ;
+void main(){
+    const vec3 bc[3] = vec3[](vec3(1.0,0.0,0.0),vec3(0.0,1.0,0.0),vec3(0.0,0.0,1.0));
+    for(int i=0;i<3;i++){
+        gl_position = gl_in[i].gl_Position;
+        uvs = uv[i];
+        barycoords = bc[i];
+        EmitVertex();}
+    EndPrimitive();}
+#version 460 core
+layout (location=0) in vec2 uvs;
+layout (location=1) in vec3 barycoords;
+layout(loaction=0) out vec4 out_FragColor;
+layout (location=0) uniform sampler2D texture0;
+float edgeFactor(float thcikness){
+    vec3 a3 = smoothstep(vec3(0.0),fwidth(barycoords) * thcikness,barycoords);
+    return min(min(a3.x,a3.y),a3.z);}
+void main(){
+    vec4 color =texture(texture0,uvs);
+    out_FragColor = mix(color*vec4(0.8),color,edgeFactor(1.0));};
+GLShader shaderVertex("data/shaders/GL02_duck.vert");
+GLShader shaderTessControl("data/shaders/GL02_duck.tesc");
 
 
