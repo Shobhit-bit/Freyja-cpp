@@ -33,4 +33,27 @@ bool initVulkanRenderDeviceWithCompute(VulkanInstance& vk,VulkanRenderDevice& vk
     VK_CHECK(vkAllocateCommandBuffers(vkDev.device,&ai2,&vkdev.computeCommandBuffer));
     vkDev.useCompute = true;
     return true;}
+VkResult createdeviceWithCompute(VkPhysicalDevice physicalDevice,VkPhysicalDeviceFeatures,deviceFeatures,uint32_t graphicsFamily,uint32_t computeFamily,VkDevice* device){
+    const std::vector<const char*> extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    if(graphicsFamily == computeFamily)
+        return
+    createDevice(physicalDevice,deviceFeatures,graphicsFamily,device);
+    const float queuePriorities[2] = {0.f,0.f};
+    const VkDeviceQueueCreateInfo qcicomp = {.SType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,.pNext = nullptr,.flags = 0,.queueFamilyIndex = computeFamily,.queueCount = 1,.pQueuePriorities = &queuePriorities[1]};
+    const VkDeviceQueueCreateInfo qci[] = {qciGfx,qciComp};
+    const VkDeviceCreateInfo ci = {.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,.pNext=nullptr,.flags = 0,.queueCreateInfoCount = 2,.pQueueCreateInfos = qci,.enabledExtensionCount = uint32_t(extension.size()),.ppEnabledFeatures = &deviceFeatures};
+    return vkCreateDevice(physicalDevice,&ci,nullptr,device);}
+bool createSharedBuffer(VulkanRenderDevice& vkDev,VkDeviceSize size,VkBufferUsageFlags usage,VkMemoryPropertyFlags peroperties,VkBuffer& buffer,VkDeviceMemory& bufferMemory){
+    const size_t familyCount = vkDev.deviceQueueIndices.size();
+    if(familyCount < 2u)
+        return
+    createBuffer(vkDev.device,vkDev.physicalDevice,sizze,usage,properties,buffer,bufferMemory);
+    const VkBufferCreateInfo bufferInfo={.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,.pNext = nullptr,.flags =0,.size=size,.usage=usage,.sharingMode = (familyCount>1u) ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE,.queueFamilyIndexCount = static_cast<uint32_t>(familyCount),.pQueueFamilyIndices = (familyCount > 1u) ? vkDev.deviceQueueIndices.data() : nullptr};
+    VK_CHECK(vkCreateBuffer(vkDev.device,&bufferInfo,nullptr,&buffer));
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(vkDev.device,buffer,&memRequirements);
+    const VkMemoryAllocateInfo allocInfo{.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,.pNext = nullptr,.allocateSize=memRequirements.size,.memoryTypeIndex = findMemoryType(vkDev.physicalDevice,memRequirements.memoryTypeBits,properties)};
+    VK_CHECK(vkAllocateMemory(vkDev.device,&allocInfo,nullptr,&bufferMemory));
+    vkBindBufferMemory(vkDev.device,buffer,bufferMemory,o);
+    return true;}
 
