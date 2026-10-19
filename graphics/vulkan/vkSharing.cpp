@@ -56,4 +56,7 @@ bool createSharedBuffer(VulkanRenderDevice& vkDev,VkDeviceSize size,VkBufferUsag
     VK_CHECK(vkAllocateMemory(vkDev.device,&allocInfo,nullptr,&bufferMemory));
     vkBindBufferMemory(vkDev.device,buffer,bufferMemory,o);
     return true;}
+VkResult createComputePipeline(VkDevice device,VkShaderModule computeShader,VkPipelineLayout pipelineLayout,VkPipeline* pipeline){
+    VkComputePipelineCreateInfo computePipelineCreateInfo={.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,.pNext = nullptr,.flags = 0,.stage = {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,.pNext = nullptr,.flags = 0,.stage = VK_SHADER_STAGE_COMPUTE_BIT,.module = computeShader,.pName = "main",.pSpecializationInfo = nullptr},.layout=pipelineLayout,.basePipelineHandle =0,.basePipelineIndex=0};
+    return vkCreateComputePipelines(device,0,1,&computePipelineCreateInfo,nullptr,pipeline);}
 
