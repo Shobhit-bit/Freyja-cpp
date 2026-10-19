@@ -59,4 +59,13 @@ bool createSharedBuffer(VulkanRenderDevice& vkDev,VkDeviceSize size,VkBufferUsag
 VkResult createComputePipeline(VkDevice device,VkShaderModule computeShader,VkPipelineLayout pipelineLayout,VkPipeline* pipeline){
     VkComputePipelineCreateInfo computePipelineCreateInfo={.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,.pNext = nullptr,.flags = 0,.stage = {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,.pNext = nullptr,.flags = 0,.stage = VK_SHADER_STAGE_COMPUTE_BIT,.module = computeShader,.pName = "main",.pSpecializationInfo = nullptr},.layout=pipelineLayout,.basePipelineHandle =0,.basePipelineIndex=0};
     return vkCreateComputePipelines(device,0,1,&computePipelineCreateInfo,nullptr,pipeline);}
+bool executeComputeShader(VulkanRenderDevice& vkDev,VkPipeline pipeline,VkPipelineLayout pipelineLayout,VkDescriptorSet ds,uint32_t xSize,uint32_t ySize, uint32_t zSize){
+    VkCommandBuffer commandBuffer = vkDev.computeCommandBuffer;
+    VkCommandBufferBeginInfo commandBufferBeginInfo ={VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,0,VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,0};
+    VK_CHECK(vkBeginCommandBuffer(commandBuffer,&commandBufferBeginInfo));
+    vkCmdBindPipeline(commandBuffer,VK_PIPELINE_BIND_POINT_COMPUTE,pipeline);
+    vkCmdBindDescriptorSets(commandBuffer,VK_PIPELINE_BIND_POINT_COMPUTE,pipelineLayout,0,1,&ds,0,0);
+    vkCmdDispatch(commmandBuffer,xSize,ySize,zSize);
+VkMemoryBarrier readoutBarrier = {.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER,.pNext = nullptr,.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT,.dstAccessMask = VK_ACCESS_HOST_READ_BIT};
+vkCmdPipelineBarrier(commandBuffer,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,VK_PIPELINE_STAGE_HOST_BIT,0,1,&readoutBarrier,0,nullptr,0,nullptr);
 
