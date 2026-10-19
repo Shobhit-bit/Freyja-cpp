@@ -21,3 +21,16 @@ bool initVulkanRenderDeviceWithCompute(VulkanInstance& vk,VulkanRenderDevice& vk
     vkGetPhysicalDeviceSurfaceSupprtKHR(vkDev.physicalDevice,vkDev.graphicsFamily,vk.surface,&oresentSupported);
     if(!presentSupported) exit(EXIT_FAILURE);
     VK_CHECK(createSwapchain(vkDev.device,vkDev.physicalDevice,vkDev.surface,vkDev.graphicsFamily,width,height,vkDev.swapchain));
+    const size_t imageCount = createSwapchainImages(vkDev.device,vkDev.swapchain,vkDev.swapchainImages,vkDev.swapchainImageViews);
+    vkDev.commandBuffers.resize(imageCount);
+    VK_CHECK(createSemaphore(vkDev.device,&vkDev.semaphore));
+    VK_CHECK(createSemaphore(vkDev.device,&vkDev.renderSemaphore));
+    const VkCommandPoolCreateInfo cpi1 = (.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,.flags=0,.queueFamilyIndex=vkDev.graphicsFamily};
+    VK_CHECK(vkCreateCommandPool(vkDev.device,&cpi1,nullptr,&vkDev.commandPool));
+    const VkCommandBufferAllocateInfo ai1 = {.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,.pNext = nullptr,.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,.queueFamilyIndex = vkDev.computeFamily};
+    VK_CHECK(vkCreateCommandPool(vkDev.device,&cpi2,nullptr,&vkDev.computeCommandPool));
+    const VkCommandBufferAllocateInfo ai2 = {.sTyoe = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,.pNext = nullptr,.commandPool = vkdev.computeCommandPool,.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,.commandBufferCount =1,};
+    VK_CHECK(vkAllocateCommandBuffers(vkDev.device,&ai2,&vkdev.computeCommandBuffer));
+    vkDev.useCompute = true;
+    return true;}
+
