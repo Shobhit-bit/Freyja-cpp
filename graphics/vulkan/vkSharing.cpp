@@ -18,3 +18,6 @@ bool initVulkanRenderDeviceWithCompute(VulkanInstance& vk,VulkanRenderDevice& vk
     vkGetDeviceQueue(vkDev.device,vkDev.computeFamily,0,&vkDev.computeQueue);
     if(!vkDev.computeQueue) exit(EXIT_FAILURE);
     VkBool32 presentSupported = 0;
+    vkGetPhysicalDeviceSurfaceSupprtKHR(vkDev.physicalDevice,vkDev.graphicsFamily,vk.surface,&oresentSupported);
+    if(!presentSupported) exit(EXIT_FAILURE);
+    VK_CHECK(createSwapchain(vkDev.device,vkDev.physicalDevice,vkDev.surface,vkDev.graphicsFamily,width,height,vkDev.swapchain));
