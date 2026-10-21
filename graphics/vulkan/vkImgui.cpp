@@ -48,4 +48,6 @@ void imguiTextureWindow(const char* Title,uint32_t texId){
     ImVec2 vmAx = Imgui::GetWindowContentRegionMax();
     ImGui::Image((void*)(intptr_t)texId,ImVec2(vMax.x-vMin.x,vMax.y-vMin.y));
     ImGui::End();}
+imguiTextureWindow("Some title",textureID);
+imguiTextureWindow("Some depth buffer",textureID | 0xFFFF);
 
