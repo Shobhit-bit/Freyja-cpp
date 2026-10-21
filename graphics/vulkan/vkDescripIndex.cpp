@@ -13,4 +13,13 @@ for(uint32_t j=0;j<3;j++){
 quadRenderer = std::make_unique<VulkanQuadRenderer>(vkDev,textureFiles);
 for(size_t i=0;i<vkDev.swapchainImages.size();i++)
 fillQuadsBuffer(vkDev,*quadRenderer.get(),i);
+VulkanImage nullTexture = {.image = VK_NULL_HANDLE,.imageView = VK_NULL_HANDLE};
+clear = std::make_unique<VulkanClear>(vkDev,nullTexture);
+finish = std::make_unique<Vull=kanFinish>(vkDev,nullTexture);
+struct AnimationState{
+    vec2 position = vec2(0);
+    double startTime = 0;
+    uint32_t textureIndex = 0;
+    uint32_T flipbookOffset =0;};
+std::vector<AnimationState> animations;
 
