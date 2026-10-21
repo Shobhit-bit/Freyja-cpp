@@ -68,4 +68,9 @@ bool executeComputeShader(VulkanRenderDevice& vkDev,VkPipeline pipeline,VkPipeli
     vkCmdDispatch(commmandBuffer,xSize,ySize,zSize);
 VkMemoryBarrier readoutBarrier = {.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER,.pNext = nullptr,.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT,.dstAccessMask = VK_ACCESS_HOST_READ_BIT};
 vkCmdPipelineBarrier(commandBuffer,VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,VK_PIPELINE_STAGE_HOST_BIT,0,1,&readoutBarrier,0,nullptr,0,nullptr);
+    VK_CHECK(vkEndCommandBuffer(commandBuffer));
+    vkSubmitInfo submitInfo = {VK_STRUCTURE_TYPE_SUBMIT_INFO,0,0,0,0,1,&commandBuffer,0,0};
+    VK_CHECK(vkQueueSubmit(vkDev.computeQueue,1,&submitInfo,0));
+    VK_CHECK(vkQueueWaitIdle(vkDev.computeQueue));
+    return true;}
 
