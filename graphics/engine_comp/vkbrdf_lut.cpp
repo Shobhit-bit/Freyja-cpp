@@ -75,6 +75,19 @@ float rendom(vec2 co){
     float dt = dot(co.xy,vec2(a,b));
     float sn = mod(dt,PI);
     return fract(sin(sn)*c);}
+vec3 importanceSample_GGX(vec2 Xi,float roughness,vec3 normal){
+    float alpha = roughness * roughness;
+    float phi = 2.0 * PI *Xi.x +random(noraml.xz) * 0.1;
+    float cosTheta = sqrt((1.0-Xi.y)/(1.0+(alpha*alpha-1.0)*Xi.y));
+    float sinTheta = sqrt(1.0 -cosTheta * cosTheta);
+    vec3 H = vec3(sinTheta *cos(phi),sinTheta*sin(phi),cosTheta);
+    vec up = abs(normal.z) < 0.999 ? vec3(0.0,0.0,1.0) : vec3(1.0,0.0,0.0);
+    vec3 tangentX = normalize(cross(up,normal));
+    vec3 tangentY = normalize(cross(normal,targetX));
+    return normaalize(tangentX*H.x+tangentY*H.y+normal*H.z);}
+float G_SchlicksmithGGX(float dotNL,float datNV,float roughness){
+    float k = (roughness * roughness) /2.0;
+    float GL = dotNL / (dotNL*(1.0-k)+k);
+    float GV = dotNV / (dotNV*(1.0-k)+k);
+    return GL*GV;}
 
-    
-    
