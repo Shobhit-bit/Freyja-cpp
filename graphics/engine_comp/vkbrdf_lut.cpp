@@ -68,7 +68,7 @@ vec2 hammersley2d(uint i,uint N){
     bits = ((bits&0x55555555u) << 8u) | ((bits&0xAAAAAAAAu) >> 8u);
     float rdi = float(bits) * 2.328306436538693e-10;
     return vec2(float(i)/float(N),rdi);}
-float rendom(vec2 co){
+float random(vec2 co){
     float a = 12.9898;
     float b = 78.233;
     float c = 43758.5453;
@@ -90,4 +90,29 @@ float G_SchlicksmithGGX(float dotNL,float datNV,float roughness){
     float GL = dotNL / (dotNL*(1.0-k)+k);
     float GV = dotNV / (dotNV*(1.0-k)+k);
     return GL*GV;}
+vec2 BRDF(float NoV,float roughness){
+    const vec3 N = vec3(0.0,0.0,1.0);
+    vec3 V = vec3(sqrt(1.0-Nov*Mov),0.0,Nov);
+    vec2 LUT = vec2(0.0);
+    for(uint32 i =0u;i<NUM_SAMPLES;i++){
+        vec2 Xi = hammersley2d(i,NUM_SAMPLES);
+        vec3 H = importanceSample_GGX(Xi,roughness,N);
+        vec3 L = 2.0 * dot(V,H) * H -V;
+        float dotNL = max(dot(N,L),0.0);
+        float dotNV = max(dot(N,V),0.0);
+        float dotVH = max(dot(V,H),0.0);
+        float dotNH = max(dot(H,N),0.0);
+        if(dotNL > 0.0){
+            float G = G_SchlicksmithGGX(dotNL.dotNV,roughness);
+            float G_Vis = (G*dotVH)/(dotNH*dotNV);
+            float Fc = pow(1.0 - dotVH,5.0);
+            LUT += vec2((1.0 -Fc) * G_Vis,Fc * G_Vis);}}
+    return LUT/float(NUM_SAMPLES);}
+vec3 EnvBRDFApprox(vec3 specularColor,float roughness,float NoV){
+    const vec4 c0 = vec4(-1,-0.0275,-0.572,0.022);
+    const vec4 c1 = vec4(1,0.0425,1.04,-0.04);
+    vec4 r = roughness * c0 + c1;
+    float a004 = min(r.x * r.x,exp2(-9.28*NoV)) * r.x + r.y;
+    vec2 AB = vec2(-1.04,1.04)*a004+r.zw;
+    return specularColor * AB.x +AB.y;}
 
