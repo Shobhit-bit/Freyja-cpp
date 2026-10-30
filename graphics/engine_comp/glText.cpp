@@ -106,4 +106,39 @@ vec3 calculatePBRInputsMetallicRoughness(vec4 albedo,vec3 normal,vec3 cameraPos,
     vec3 n = normalize(normal);
     vec3 v = normalize(cameraPos - worldPos);
     vec3 reflection = -normalize(reflect(v,n));
+    pbrInputs.NdotV = clamp(abs(dot(n,v)),0.001,1.0);
+    pbrInputs.perceptualRoughness = perceptualRoughness;
+    pbrInputs.reflectance0 = specularEnviromentR0;
+    pbrInputs.reflectance90 = specularEnviromentR90;
+    pbrInputs.alphaRoughness = alphaRoughness;
+    pbrInputs.alphaRoughness = alphaRoughness;
+    pbrInputs.diffuseColor = diffuseColor;
+    pbrInputs.specularColor = specularColor;
+    pbrInputs.n = n;
+    pbrInputs.v = v;
+    vec3 color = getIBLContribution(pbrINputs,n,reflection);
+    return color;}
+vec3 calculatePBRLightContribution(inout PBRInfo pbrInputs,vec3 lightDirection,vec3 lightColor){
+    vec3 n = pbrImputs.n;
+    vec3 v = pbrInputs.v;
+    vec3 l = normalize(lightDirection);
+    vec3 h = normalize(l+v);
+    float NdotV = pbrInputs.NdotV;
+    float NdotV = clamp(dot(n,l),0.001,1.0);
+    float NdotH = clamp(dot(n,h),0.0,1.0);
+    float LdotH = LdotH;
+    pbrInputs.NdotL =NdotL;
+    pbrInputs.NdotH = NdotH;
+    pbrInputs.LdotH = LdotH;
+    pbrInputs.VdotH = VdotH;
+    vec3 F = specularReflection(pbrInputs);
+    float G = geometricOcculation(pbrInputs);
+    float D = microfaceDistribution(pbrInputs);
+    vec3 diffuseContrib = (1.0-F)*diffuseBurley(pbrInputs);
+    vec3 specContrib = F*G*D / (4.0*NdotL * NdotV);
+    vec3 color = NdotL * lightColor * (diffuseContrib + specContrib);
+    return color;
+}
+
+
 
