@@ -52,4 +52,39 @@ glm::mat4 toMat4(const aiMatrix4x4& m){
         for(int j=0;j<4;j++)
             mm[i][j] = m[i][j];
     return mm;}
-int addNode
+int addNode(Scene& scene,int parent,int level){
+    int node = (int)scene.hierarchy_.size();
+    scene.localTransform_.push_back(glm::mat4(1.0f));
+    scene.globalTransform_.push_back(glm::mat4(1.0f));
+    scene.hierarchy.push_back({.parent = parent});
+    if(parent > -1){
+        int s = scene.heirarchy_[parent].firstChild_ = node;
+        if(s == -1){
+            scene.hierarchy_[parent].firstChild_ = node;
+            scene.hierarchy_[node].lastSibling_ = node;}
+        else {
+            int dest = scene.hierarchy_[s].lastSibling_;
+            if (dest <= -1){
+                for(dest = s;scene.hierarchy_[dest].nextSibling_ != -1;dest = scene.hierarchy_[dest].nextSibling_);}
+            scene.hierarchy_[dest].nextSibling_ = node;
+            scene.heirarchy_[s].lastSibling_ = node;}}
+    scene.hierarchy[node].level = level;
+    scene.hierarchy_[node].nextSibling_ = -1;
+    scene.hierarchy_[node].firstChild_ = -1;
+    return node;}
+int renderSceneTree(const Scene& scene,int node){
+    int selected = -1;
+    std::string name = getNodeName(scene,node);
+    std::string label = name.empty() ? (std::string("Node") + std::to_string(node)) : name;
+    int flags = (scene.hierarchy_[node].firstChild_ < 0) ? ImGuiTreenODEfLAGS_lEAF | ImGuiTreeNodeFlags_Bullet : 0;
+    const bool opened = ImGui::TreeNodeEx(&scene.hierarchy_[node],flags,"%s",label.c_str());
+    ImGui::PushID(node);
+    if(ImGui::IsItemClicked(0)) selected = node;
+    if(opened){
+        for(int ch = scene.hierarchy_[node].firstChild_;ch != -1;ch = scene.heirarchy_[ch].nextSibling_){
+            int subNode =renderSceneTree(scene,ch);
+            if(subNode > -1) selected = subNode;}
+        ImGui::TreePop();}
+    ImGui::PopID();
+    return selected;}
+
