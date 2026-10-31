@@ -136,5 +136,10 @@ void saveMap(FILE* f,const std::unordered_map<uint32_t,uint32_t& map){
     uint32_t sz = ms.size();
     fwrite(&sz,sizeof(sz),1,f);
     fwrite(ms.data(),sizeof(int),ms.size(),f);}
-
+Scene::Render(){
+    mat4 parentTransform = parent ? parent->globalTransform : identity();
+    this->globalTransform = parentTransform * localTransform;}
+void markAsChanged(Scene& scene,int node){
+    int level = scene.hierarchy_[node].level;
+    scene.changedAtThisFrame_[level].push_back(node);
 
