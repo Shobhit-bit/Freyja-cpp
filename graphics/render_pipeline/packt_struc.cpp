@@ -56,5 +56,17 @@ struct DrawData{
     uint indexOffset;
     uint vertexOffset;
     uint transformIndex;};
-
-
+#include <data/shaders/VK01_VertCommon.h> 
+layout(binding =0) uniform UniformBuffer {mat4 inMtx;vec4 cameraPos;}ubo;
+layout(binding=1) readonly buffer SBO{ImDrawVert data[];} sbo;
+layout(binding=2) readonly buffer IBO{uint data[];} ibo;
+layout(binding=3) readonly buffer DrawBO{DrawData data[];} drawDataBuffer;
+layout(binding=5) readonly buffer XfrmBO{mat4 data[];} transformBuffer;
+void main(){
+    DrawData dd = drawDataBuffer.data[gl_BaseInstance];
+    uint refIdxx = dd.indexOffset + gl_VertexIndex;
+    ImDrawVert v = sbo.data[ibo.data[refIdx] + dd.vertexOffset];
+    mat4 model = transformBuffer.data[gl_BaseInstance];
+    v_worldPos = model * vec4(v.x,-v.y,v.z,1.0);
+    v_worldNormal = transpose(inverse(mat3(model))) * vec3(v.nx,-v.ny,v.nz);
+    gl_Position = ubo.inMtx * v_worldPos;
