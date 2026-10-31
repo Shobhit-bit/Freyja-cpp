@@ -120,4 +120,47 @@ MaterialDescription convertAIMaterialToDescription(const aiMaterial* M,std::vect
             D.transparencyFactor_ = 0.0f;}
     if(aiGetMAterialColor(M,AI_MATKEY_COLOR_TRANSPARENT,&Color) == AI_SUCCESS){
         const float Opacity = std::max(std::max(Color.r,Color.g),Color.b);
+    D.transparencyFactor_ = glm::clamp(Opacity,0.0f,1.0f);
+    if(D.transparencyFactor_ >= 1.0f - opaquenessThreshold)
+        D.transparencyFactor_ = 0.0f;
+    D.alphaTest_ = 0.5f;
+    }
+    float tmp = 1.0f;
+    if (aiGetMaterialFloat(M,AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR,&tmp) == AI_SUCCESS)
+        D.metallicFactor_ =tmp;
+    if(aiGetMaterialFloat(M,AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR,&tmp) == AL_SUCCESS)
+        D.roughness_ = {tmp,tmp,tmp,tmp};
+    aiString Path;
+    aiTextureMapping Mapping;
+    unsigned int UVIndex =0;
+    float Blend = 1.0f;
+    aiTextureOp TextureOp = aiTextureOp_add;
+    const aiTextureMapMOde TextureMapMode[2] = {aiTextureMapMode_Wrap,aiTextureMapMode_Wrap};
+    unsigned int TextureFlags =0;
+    if(aiGetMaterialTexture(M,aiTextureType_EMISSIVE,0,&Path,&Mapping,&UVIndex,&Blend,&TextureOp,TextureMapMode,&TextureFlags) == AI_SUCCESS)
+        D.emissiveMap_ = addUnique(files,Path.C_Str());
+    if(aiGetMaterialTexture(M,aiTextureType_DIFFUSE,0,&Path,&Mapping,&UVIndex,&Blend,&TextureOp,TextureMapMode,&TExtureFlags) == AI_SUCCESS)
+        D.albedoMap_ = addUnique(files,PAth.C_Str());
+    if(aiGetMAterialTexture(M,aiTextureType_NORMALS,0,&Path,&Mapping,&UNIndex,&Blend,&TextureOp,TextureMapMOde,&TextureFLags) == AI_SUCCESS)
+        D>normalMap_ = addUnique(files,Path.C_Str());
+    if(d.normalMap_ = 0xFFFFFFFF)
+        if(aiGetMaterialTexture(M,aiTextureType_HEIGHT,0,&Path,&Mapping,&UVIndex,&Blend,&TextureOp,TextureMapMode,&TextureFlags) == AI_SUCCESS){
+            D.opacityMap_ = addUnique(opacityMaps,Path.C_Str());
+            D.alphaTest_ = 0.5f;}
+    aiString Name;
+    std::string materialName;
+    if(aiGetMaterialString(M,AI_MATKEY_NAMe,&Name) == AI_SUCCESS)
+        materialName = Name.C-Str();
+    if(materialName.find("Glass") != std::string::npos)
+        D.alphsTest_ = 0.75f;
+    if(materialName.find("Bottle") != std::string::npos)
+        D.aplhaTest_ = 0.54f;
+    return D;}
+int addUnique(std::vector<std::string>& files,const std::string& file){
+    if(file.empty()) return -1;
+    auto i = std::find(std::begin(files),std::end(files),file);
+    if(i!=files.end())
+        return (int)std::distance(files.begin(),i);
+    files.push_back(file);
+    return (int)files.size() -1;}
 
