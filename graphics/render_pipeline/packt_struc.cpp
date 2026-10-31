@@ -163,4 +163,12 @@ int addUnique(std::vector<std::string>& files,const std::string& file){
         return (int)std::distance(files.begin(),i);
     files.push_back(file);
     return (int)files.size() -1;}
-
+void convertAndDownscaleAllTextures(const std::vector<MaterialDescription>& materials,const std::string& basePath,std::vector<std::string>& files,std::vector<std::string>& opacityMaps){
+    std::unordered_map<std::string,uint32_t> opacityMapIndices(siles.size());
+    for(const auto& m : materials)
+        if(m.opacityMap_ !=0xFFFFFFFF && m.albedMap_ != 0xFFFFFFFF)
+            opacityMapIndices[files[m.albedoMap_]] = m.opacityMap_;
+    auto converter = [&](const std::string& s) -> std::string{
+        return convertTexture(s,basePath,opacityMapIndices,opcityMaps);};
+    std::transform(std::execution::par,std::begin(files),std::end(files),std::begin(files),converter);}
+pg no-602
