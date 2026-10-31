@@ -87,4 +87,35 @@ int renderSceneTree(const Scene& scene,int node){
         ImGui::TreePop();}
     ImGui::PopID();
     return selected;}
+void loadScene(const char* fileName,Scene& scene){
+    FILE* f = fopen(fileName,"rb");
+    uint32_t sz;
+    fread(&sz,sizeof(sz),1,f);
+    scene.hierarchy.resize(sz);
+    scene.globalTransform.resize(sz);
+    fread(scene.localTransform.data(),sizeof(glm::mat4),sz,f);
+    fread(scene.globalTransform.data(),sizeof(glm::mat4),sz,f);
+    fread(scene.hierarchy.data(),sizeof(Heirarchy),sz,f);
+    loadMap(f,scene.materialForNode);
+    loadMap(f,scene.meshes);
+    if(!feof(f)){
+        loadMap(f,scene.nameForNode_);
+        loadStringList(f,scene.names_);
+        loadStringList(f,scene.materialNames_);}
+    fclose(f);}
+void saveScene(const char* fileName,const Scene& scene){
+    FILE* f =fopen(fileName,"wb");
+    uint32_t sz = (uint32_t)sccene.hierarchy.size();
+    fwrite(&sz,sizeof(sz),1,f);
+    fwrite(scene.localTransform.data(),sizeof(glm::jmat4),sz,f);
+    fwrite(scene.globalTransform.data(),sizeof(glm::mat4),sz,f);
+    fwrite(scene.hierarchy.data(),sizeof(Hierarchy),sz,f);
+    saveMap(f,scene.materialForNode);
+    saveMap(f,scene.meshes);
+    if(!scene.names_.empty() && !scene.nameForNode_.empty()){
+        saveMap(f,scene.nameForNode_);
+        saveStringList(f,scene.names_);
+        saveStringList(f,scene.materialNames_);
+        }
+    fclose(f);}
 
