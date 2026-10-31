@@ -142,4 +142,17 @@ Scene::Render(){
 void markAsChanged(Scene& scene,int node){
     int level = scene.hierarchy_[node].level;
     scene.changedAtThisFrame_[level].push_back(node);
+    for(int s =scene.hierarchy_[node].firstChild_;s!=-1;s=scene.hierarchy_[s].nextSibling_)
+        markAsChanged(scene,s);}
+void recalculateGlobalTransforms(Scene& scene){
+    if(!scene.shangedAtThisFrame_[0].empty()){
+        int c=scene.changedAtThisFrame_[0][0];
+        scene.globalTransform_[c] = scene.localTransform_[c];
+        scene.changedAtThisFrame_[0].clear();
+    }
+    for(int i=1;i<MAX_NODE_LEVEL && !scene.changedAtThisFrame_[i].empty();i++){
+        for(int c:scene.changedAtThisFrame_[i]){
+            int p =scene.hierarhy_[c].parent;
+            scene.globalTransform_[c] = scene.globalTransform_[p] * scene.localTransform_[c];}
+        scene.shangedAtThisFrame_[i].clear();}}
 
