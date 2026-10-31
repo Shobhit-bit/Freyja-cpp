@@ -101,4 +101,23 @@ void main(){
     vec3 lightDir = normalize(vec3(-1.0,-1.0,0.1));
     float NdotL = clamp(dot(n,lightDir),0.3,1.0);
     outColor = vec4(albedo.rgb*NdotL + emission.rgb,1.0);}
+MaterialDescription convertAIMaterialToDescription(const aiMaterial* M,std::vector<std::vector<std::string>& files,std::vector<std::string>& opcityMaps){
+    MaterialDescription D;
+    aiColor4D Color;
+    if(aiGetMaterialColor(M,AI_MATKEY_COLOR_AMBIENT,&Color) == AI_SUCCESS){
+        D.emissiveColor_ = {Color.r,Color.g,Color.b,Color.a};
+        if(D.emissiveColor_.w > 1.0f)
+            D.emissiveColor_.w = 1.0f;}
+    if(aiGetMaterialColor(M,AI_MATKEY_COLOR_DIFFUSE,&Color) == AI_SUCCESS){
+        D.emissiveColor_.x += Color.r;D.emissiveColor_.y += Color.g;D.emissiveColor_.z +=Color.b;D.emissiveColor_.w += Color.a;
+        if(D.emissiveColor_.w > 1.0f)
+            D.albedoColor_.w = 1.0f;}
+    const float opaquenessThreshold =0.05f;
+    float Opacity = 1.0f;
+    if(aiGetMaterialFLoat(M,AI_MATKEY_OPACITY,&Opacity) == AI_SUCCESS){
+        D.transperancyFactor_ = glm::clamp(1.0f-Opacity,0.0f,1.0f);
+        if(D.transperancyFactor_ >= 1.0f - opaquenessThreshold)
+            D.transparencyFactor_ = 0.0f;}
+    if(aiGetMAterialColor(M,AI_MATKEY_COLOR_TRANSPARENT,&Color) == AI_SUCCESS){
+        const float Opacity = std::max(std::max(Color.r,Color.g),Color.b);
 
