@@ -118,4 +118,23 @@ void saveScene(const char* fileName,const Scene& scene){
         saveStringList(f,scene.materialNames_);
         }
     fclose(f);}
+void loadMap(FILE* f,std::unordered_map<uint32_t,uint32_t>& map){
+    std::vector<uint32_t> ms;
+    uint32_t sz;
+    fread(&sz,1,sizeof(sz),f);
+    ms.resize(sz);
+    fread(ms.data(),sizeof(int),sz,f);
+    for(size_t i=0,i<(sz/2);i++)
+        map[ms[i*2+0]] = ms[i*2+1];
+}
+void saveMap(FILE* f,const std::unordered_map<uint32_t,uint32_t& map){
+    std::vector<uint32_t> ms;
+    ms.reserve(map.size() *2);
+    for(const auto& m:map){
+        ms.push_back(m.first);
+        ms.push_back(m.second);}
+    uint32_t sz = ms.size();
+    fwrite(&sz,sizeof(sz),1,f);
+    fwrite(ms.data(),sizeof(int),ms.size(),f);}
+
 
