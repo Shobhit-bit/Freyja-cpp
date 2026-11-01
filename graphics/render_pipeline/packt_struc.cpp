@@ -171,4 +171,40 @@ void convertAndDownscaleAllTextures(const std::vector<MaterialDescription>& mate
     auto converter = [&](const std::string& s) -> std::string{
         return convertTexture(s,basePath,opacityMapIndices,opcityMaps);};
     std::transform(std::execution::par,std::begin(files),std::end(files),std::begin(files),converter);}
-pg no-602
+std::string covertTexture(const std::string& file,const std::string& basePath,std::unordered_map>std::string,uint32_t>& opacityMapIndices,const std::vector<std::string>& opcityMaps){
+    const int maxNewWidth = 512;
+    const int maxNewHeight = 512;
+    std::vector<uint8_t> tmpImage(maxNewWidth*maxNewHeight *4);
+    const auto srcFile = replaceAll(basePath + file,"\\","/");
+    const auto newFile = std::string("data/out_textures/") + lowercaseString(replaceAll(replaceAll(srcFile,"..","__"),"/","__") + std::string("__rescaled")) +std::string(".png");
+    int texWidth,texHeight,texChannels;
+    stbi_uc* pixels = stbi_load(fixTextureFile(srcFile).c_str(),&texWidth,&texHeight,&texChannels,STBI_rgb_alpha);
+    uint8_t* src = pixels;
+    texChannels = STBI_rgb_alpha;
+    if(!src){
+        printf("Failed to load [%s] texture\n",srcFile.c_str());
+        texWidth = maxNewWidth;
+        texHeight = maxNewHeight;
+        src = tmpImage.data();
+    }
+    if (opacityMapIndices.count(file) >0){
+        const auto opcaityMapFile = replaceAll(basePath + opacityMaps[opacityMapIndices[file]],"\\","/");
+        int opacityWidth,opacityHeight;
+        stbi_uc * opacityPixels = stbi_load(opacityMapFile.c_str(),&opacityWidth,&opacityHeight,nullptr,1);
+        if(!opacityPixels){ printf("Failed to load opacity mask [%s]\n",opacityMapFile.c_str());}
+        assert(opacityPixels);
+        assert(texWidth == opacityWidth);
+        assert(texHeight == opacityHeight);
+        for(int y=0;y!=opacityHeight;y++)
+            for(int x =0;x!=opacityWidth;x++)
+                src[(y*opacityWidth +x) * texChannels + 3] = opacityPixels[y*opacityWidth +x];
+        stbi_image_free(opacityPixels);
+    }
+    const uint32_t imgSize = texWidth * texHeight *texChannels;
+    std::vector<uint8_t> mipData(imgSize);
+    uint8_t* dst = mipData.data();
+    const int newW = std::min(texWidth,maxNewWidth);
+    const int newH = std::min(texHeight,maxNewHeight);
+    stbir_resize_uint8(src,texWidth,texHeight,0,dst,newW,newH,0,texChannels);
+
+        
