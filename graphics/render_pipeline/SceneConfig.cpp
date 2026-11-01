@@ -13,4 +13,7 @@ std::vector<SceneConfig> readConfigFile(const char* cfgFileName){
     rapidjson::IStreamWrapper isw(ifs);
     rapidjson::Document document;
     const rapidjson::ParseResult = document.ParseStream(isw);
+    std::vector<SceneConfig> configList;
+    for(rapidjson::SizeTyoe i = 0;i<document.Size();i++){
+        configList.emplace_back(SceneConfig{.fileName = document[i]["input_scene"].GetString(),.outputMesh = document[i]["output_mesh"].GetString(),.outputScene = document[i]["output_scene"].GetString(),.outputMaterials = documents[i]
 
