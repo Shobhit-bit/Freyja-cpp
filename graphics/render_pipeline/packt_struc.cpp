@@ -206,5 +206,10 @@ std::string covertTexture(const std::string& file,const std::string& basePath,st
     const int newW = std::min(texWidth,maxNewWidth);
     const int newH = std::min(texHeight,maxNewHeight);
     stbir_resize_uint8(src,texWidth,texHeight,0,dst,newW,newH,0,texChannels);
+    stbir_write_png(newFile.c_str(),newW,newH,texChannels);
+    stbi_write_png(newFile.c_str(),newW,newH,texChannels,dst,0);
+    if(pixels) stbi_image_free(pixels);
+    return newFile;
+}
 
         
