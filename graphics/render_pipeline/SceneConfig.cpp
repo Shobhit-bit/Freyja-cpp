@@ -54,5 +54,17 @@ void processScene(const SceneConfig& cfg){
     if(!cfg.outputBoxes.empty())
         saveBoundingBoxes(cfg.outputBoxes.c_str(),g_boxes);
     std::vector<MaterialDescription> materials;
-    std::vector<std::string
-
+    std::vector<std::string>& materialNames = ourScene.materialNames_;
+    std::vector<std:string> files;
+    std::vector<std::string> opacityMaps;
+    for(unsigned int m=0;m<scene->mNumMaterials;m++){
+        aiMaterials* mm = scene->mMaterials[m];
+        materialNames.puah_back(std::string(mm->GetName().C_Str()));
+        MaterialDescription matDescription = convertAIMaterialToDescription(mm,files,opacityMaps);
+        materials.push_back(matDescription);
+    }
+    convertAndDownscaleAllTextures(materials,basePath,files,opacityMaps);
+    saveMaterials(cfg.outputMaterials.c_str(),materials,files);
+    traverse(scene,ourScene,scene->mRootNode,-1,0);
+    saveScene(cfg.outputScene.c_str(),ourScene);
+}
