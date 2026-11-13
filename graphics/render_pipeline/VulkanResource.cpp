@@ -96,4 +96,13 @@ VulkanTexture addDepthTexture(int texWidth ,int texHeight,VkImageLayout layout =
     allTexture.push_back(depth);
     return depth;
 }
-
+struct RenderPass{
+    RenderPass() = default;
+    explicit RenderPass(VulkanRenderDevice& device,bool useDepth = true,const RenderPassCreateInfo& ci = RenderPassCreateINfo()) : info(ci){
+        if(!createColorAndDepthRenderPass(vkDev,useDepth,&handle,ci)){
+            printf("Failed to create render pass\n");
+            exit(EXIT_FAILURE);
+        }}
+    RenderPassCreateInfo info;
+    VkRenderPass handle = VK_NULL_HANDLE;
+};
