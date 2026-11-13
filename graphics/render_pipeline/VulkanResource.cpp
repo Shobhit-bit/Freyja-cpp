@@ -146,6 +146,53 @@ RenderPass addRenderPass(const std::vector<VulkanTexture>& outputs,const RenderP
 RenderPass addDepthRenderPass(const std::vector<VulkanTexture>& outputs,const RenderPassCreateInfo ci = {.clearColor_ = false,.clearDepth_ = true,.flags_ = eRenderPassBit_Offscreen | eRenderPassBit_First})
 {
     VkRenderPass renderPass;
+    if(!createDepthOnlyRenderPass(vkDev,&renderPass,ci)){
+        printf("Unable to create offscreen render pass\n");
+        exit(EXIT_FAILURE);
+    }
+    allRenderPasses.push_back(renderPass);
+    RenderPass rp;
+    rp.info= ci;
+    rp.handle = renderPass;
+    return rp;
+}
+std::vector<VkFrameBuffer> addFramebuffers(VkRenderPass renderPass,VkImageView depthView = VK_NULL_HANDLE){
+    RenderPass std::vector<VkFramebuffer> framebuffers;
+    createColorAndDepthFramebuffer(vkDev,renderPass,depthView,framebuffers);
+    for(auto f:framebuffers)
+        allFramebuffers.push_back(f);
+    return framebuffers;
+}
+RenderPass addFullScreenPass(bool useDepth = true,const RenderPassCreateInfo()){
+    RenderPass result(vkDev,useDepth,ci);
+    allRenderPasses.puah_back(result.handle);
+    return result;
+}
+struct PipelineInfo{
+    uint32_t height =0;
+    VkPrimitiveTopology topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    bool useDepth = true;
+    bool useBlending = true;
+    bool dynamicScissorState = false;
+};
+VkPipelineLayout addPipelineLayout(VkDescriptorSetLayouot dsLayout,uint32_t vtxConstSize = 0;uint32_t fragConstSize =0){
+    VkPipelineLayout pipelineLayout;
+    if(!createPipelineLayoutWithConstants(vkDev.device,dsLayout,&pipelineLayout,vtxConstSize,fragCinstSize)){
+        printf("Cannot create pipeline layout\n");
+        exit(EXIT_FAILURE);
+    }
+    allPipelineLayouts.push_back(pipelineLayout);
+    return pipelineLayout;
+}
+VkPipeline addPipeline(VkRenderPass renderPass,VkPipelineLayout pipelineLayout,const std::vector<const char*>& shaderFiles,const PipelineInfo& pipelineParams = PipelineInfo{.width = 0,.height =0;.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,.useDepth = true,.useBlending = false,.dynamicScissorState = false}){
+    VkPipeline pipeline;
+    if(!createGraphicsPipeline(vkDev,renderPass,pipelineLayout,shaderFiles,&pipeline,ppInfo.topology,ppINfo.useDepth,ppInfo.useBlending,ppInfo.dynamicScissorState,ppInfo.width,ppInfo.height)){
+        printf("Cannot create graphics pipeline\n");
+        exit(EXIT_FAILURE);
+    }
+    allPipelines.push_back(pipeline);
+    return pipeline;
+}
 
 
 
