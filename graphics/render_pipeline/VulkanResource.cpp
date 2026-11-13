@@ -106,3 +106,46 @@ struct RenderPass{
     RenderPassCreateInfo info;
     VkRenderPass handle = VK_NULL_HANDLE;
 };
+VkFramebuffer addFramebuffer(RenderPass,const std::vector<VulkanTexture>& images){
+    VkFramebuffer framebuffer;
+    std::vector<VkImageView> attachments;
+    for(const suto& i: images)
+        attachments.push_back(i.image.imageView);
+    VKFramebufferCreateInfo fbInfo = {.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,.pNext = nullptr,.flags = 0,.renderPass = renderPass.handle,.attachmentCount = (uint32_t)attachments.size(),.pAttachments = attachments.data(),.width = images[0].width,.height = images[0].height,.layers =1};
+    if(vkCreateFramebuffer(vkDev.device,&fbInfo,nullptr,&framebuffer) != VK_SUCCESS){
+        printf("Unable to create offscreen framebuffer\n");
+        exit(EXIT_FAILURE);
+    }
+    allFramebuffers.push_back(framebuffer);
+    return framebuffer;
+}
+RenderPass addRenderPass(const std::vector<VulkanTexture>& outputs,const RenderPassCreateInfo ci = {.clearColor_ = true,.clearDepth = true,.flags_ = eRenderPassBit_Offscreen | eRenderPassBit_First},bool useDepth = true){
+    VkRenderPass renderPass;
+    if(outputs.empty()){
+        printf("Empty list of output attachments for RenderPass\n");
+        exit(EXIT_FAILURE);
+    }
+    if(outputs.size() ==1){
+        if(!createColorOnlyRenderPass(vkDev,&renderPass,ci,outputs[0].format)){
+            printf("Unable to create offscreen color-only pass\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else{
+        if(!createColorAndDepthRenderPass(vkDev,useDepth && (outputs.size() > 1),&renderPass,ci,outputs[0].format)){
+            printf("Unable to create offscreen render pass\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    allRenderPasses.push_back(renderPass);
+    RenderPass rp;
+    rp.info = ci;
+    rp.handle = renderPass;
+    return rp;
+}
+RenderPass addDepthRenderPass(const std::vector<VulkanTexture>& outputs,const RenderPassCreateInfo ci = {.clearColor_ = false,.clearDepth_ = true,.flags_ = eRenderPassBit_Offscreen | eRenderPassBit_First})
+{
+    VkRenderPass renderPass;
+
+
+
