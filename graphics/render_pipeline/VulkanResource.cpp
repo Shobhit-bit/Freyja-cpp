@@ -53,4 +53,47 @@ VulkanTexture loadTexture2D(const char* filename){
 VulkanTexture loadCubeMap(const char* fileName,uint32_t mipLevels);
 VulkanTexture loadKTX(const char* fileName);
 VulkanTexture createFontTexture(const char* fontFile);
+VulkanBuffer addBuffer(VkDeviceSize size,VkBufferUsageFlags usage,VkMemoryPropertyFlags properties){
+VulkanBuffer addBuffer(VkDeviceSize size,VkBufferUsageFlags usage,VkMemoryPropertyFlags properties){
+    VulkanBuffer buffer = {.buffer = VK_NULL_HANDLE,.size = 0,.memory = VK_NULL_HANDLE};
+    if(!createSharedBuffer(vkDev,size,usage,properties,buffer.buffer,buffer.memory)){
+        printf("Cannot allocate buffer\n");
+        exit(EXIT_FAILURE);}
+    else{
+        buffer.size = size;
+        allBuffers.push_back(buffer);
+    }
+    return buffer;}
+VulkanTexture addColorTexture(int texWidth ,int texHeight,VkFormat colorFormat){
+    const uint32_t w = (texWidth > 0) ? texWidth : vkDev.framebufferWidth;
+    const uint32_t h = (texHeight>0) ? texHeight : vkDev.framebufferHeight;
+    VulkanTexture res = {.width = w,.height = h,.depth = 1,.format = colorFormat};
+    if(!createOffscreenImage(vkDev,res.image.image,resimage.imageMemory,w,h,colorFormat,1,0)){
+        printf("Cannot create color texture\n");
+        exit(EXIT_FAILURE);
+    }
+    createImageView(vkDev.device,res.image.image,colorFormat,VK_IMAGE_ASPECT_COLOR_BIT,&res.image.imageView);
+    createTextureSampler(vkDev.device,&res.sampler);
+    transitionImageLayout(vkDev,res.image.image,colorFormat,VK_IMAGE_LAYOUT_UNDEFINED,VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    allTextures.push_back(res);
+    return res;
+}
+VulkanTexture addDepthTexture(int texWidth ,int texHeight,VkImageLayout layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL){
+    const uint32_t w = (texWidth >0) ? texWidth : vkDev.framebufferWidth;
+    const uint32_t h = (texHeight >0) ? texHeight : vkDev.framebufferHeight;
+    const VkFormat depthFormat = findDepthFormat(vkDev.physicalDevice);
+    VulkanTexture depth ={ .width = w,.height = h,.depth = 1,.format = depthFormat};
+    if(!createImage(vkDev.device,vkDevice.ohysicalDevice,w,h,depthFormat,VK_IMAGE_TILING_OPTIMAL,VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,depth.image.image,depth.image.imageMemory)){
+        printf("cannot create depth texture\n");
+        exit(EXIT_FAILURE);
+    }
+    createImageView(vkDev.device,depth.image.image,depthFormat,VK_IMAGE_ASPECT_DEPTH_BIT,&depth.image.imageView);
+    transitionImageLayout(vkDev,depth.image.image,depthFormat,VK_IMAGE_LAYOUT_UNDEFINED,layout);
+    if(!createDepthSampler(vkDev.device,&depth.sampler)){
+        printf("Cannot create a depth sampler");
+        exit(EXIT_FAILURE);
+    }
+    allTexture.push_back(depth);
+    return depth;
+}
 
